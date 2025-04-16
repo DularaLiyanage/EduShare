@@ -83,10 +83,11 @@ const EventList = () => {
       </Row>
       <Row>
         {events.length > 0 ? (
-          events.map(event => (
+          events.map((event,index) => (
             <Col key={event.id} sm={12} className="mb-2">
               <EventCard
                 event={event}
+                index={index}
                 handleEdit={handleEditEvent}
                 handleDelete={handleDeleteEvent}
                 handleView={handleViewEvent}

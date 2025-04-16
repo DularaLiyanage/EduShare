@@ -24,7 +24,6 @@ const EventList = () => {
     try {
       const response = await axios.get(API_URL);
       setEvents(response.data);
-      console.log(response)
     } catch (error) {
       console.error('Error fetching events', error);
     }
@@ -70,30 +69,36 @@ const EventList = () => {
     setShowDetail(true);
   };
 
-  const handleAddAttendee = (eventId) => {
-    setEventId(eventId);
+  const handleAddAttendee = (id) => {
+    setEventId(id);
     setShowAddAttendeeModal(true);
-  }
+  };
 
   return (
     <Container>
       <Row className="d-flex justify-content-end mb-3">
         <Col xs="auto">
-            <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
+          <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
         </Col>
-    </Row>
+      </Row>
       <Row>
-        {events.map(event => (
-          <Col key={event.id} sm={12} md={12} lg={12} className="mb-2">
-            <EventCard
-              event={event}
-              handleEdit={handleEditEvent}
-              handleDelete={handleDeleteEvent}
-              handleView={handleViewEvent}
-              handleAddAttendee={handleAddAttendee}
-            />
+        {events.length > 0 ? (
+          events.map(event => (
+            <Col key={event.id} sm={12} className="mb-2">
+              <EventCard
+                event={event}
+                handleEdit={handleEditEvent}
+                handleDelete={handleDeleteEvent}
+                handleView={handleViewEvent}
+                handleAddAttendee={handleAddAttendee}
+              />
+            </Col>
+          ))
+        ) : (
+          <Col sm={12}>
+            <p>No events available. Please add some events.</p>
           </Col>
-        ))}
+        )}
       </Row>
       <EventForm
         show={showForm}
@@ -107,9 +112,9 @@ const EventList = () => {
         eventId={eventId}
       />
       <RegisterAttendeeForm
-         show={showAddAttendeeModal}
-         handleClose={() => setShowAddAttendeeModal(false)}
-         eventId={eventId}
+        show={showAddAttendeeModal}
+        handleClose={() => setShowAddAttendeeModal(false)}
+        eventId={eventId}
       />
     </Container>
   );

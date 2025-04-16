@@ -1,95 +1,142 @@
 package com.edushare.backend.controller;
 
-import com.edushare.backend.model.Attendee;
 import com.edushare.backend.model.Event;
-
-import com.edushare.backend.model.EventAttendee;
 import com.edushare.backend.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = "http://localhost:3000")
 public class EventController {
 
-    private final EventService eventService;
-
     @Autowired
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
+    private EventService eventService;
+
+    @PostMapping
+    public ResponseEntity<?> createEvent(@RequestBody Map<String, Object> eventData) {
+        try {
+            Event event = new Event();
+            event.setName((String) eventData.get("name"));
+            event.setDescription((String) eventData.get("description"));
+            event.setLocation((String) eventData.get("location"));
+
+            // Handle date conversion
+            String dateStr = (String) eventData.get("date");
+            if (dateStr != null && !dateStr.isEmpty()) {
+                LocalDateTime dateTime;
+
+                // Check if it's a full ISO datetime string
+                if (dateStr.contains("T")) {
+                    dateTime = LocalDateTime.parse(dateStr);
+                } else {
+                    // It's just a date string like "2025-04-16"
+                    LocalDate date = LocalDate.parse(dateStr);
+                    // Set time to noon by default
+                    dateTime = LocalDateTime.of(date, LocalTime.NOON);
+                }
+                event.setDate(dateTime);
+            }
+
+            return new ResponseEntity<>(eventService.createEvent(event), HttpStatus.CREATED);
+        } catch (DateTimeParseException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Invalid date format. Please use YYYY-MM-DD or ISO format.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+        return new ResponseEntity<>(eventService.getAllEvents(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEventById(@PathVariable Long id) {
-        Event event = eventService.getEventById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
-
-
-        if (event != null) {
-            return ResponseEntity.ok(event);
+    public ResponseEntity<?> getEventById(@PathVariable String id) {
+        Optional<Event> event = eventService.getEventById(id);
+        if (event.isPresent()) {
+            return ResponseEntity.ok(event.get());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Event not found"));
-        }
-    }
-
-    @GetMapping("/{eventId}/attendees")
-    public ResponseEntity<List<Attendee>> getAttendeesByEventId(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventService.getAttendeesByEventId(eventId));
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<?> createEvent(@RequestBody Event event) {
-        try {
-            Event createdEvent = eventService.addEvent(event);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Event not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody Event eventDetails) {
+    public ResponseEntity<?> updateEvent(@PathVariable String id, @RequestBody Map<String, Object> eventData) {
         try {
-            Event updatedEvent = eventService.updateEvent(id, eventDetails);
-            return ResponseEntity.ok(updatedEvent);
+            Optional<Event> existingEvent = eventService.getEventById(id);
+            if (!existingEvent.isPresent()) {
+                throw new RuntimeException("Event not found for this id :: " + id);
+            }
+
+            Event event = existingEvent.get();
+            event.setName((String) eventData.get("name"));
+            event.setDescription((String) eventData.get("description"));
+            event.setLocation((String) eventData.get("location"));
+
+            // Handle date conversion
+            String dateStr = (String) eventData.get("date");
+            if (dateStr != null && !dateStr.isEmpty()) {
+                LocalDateTime dateTime;
+
+                // Check if it's a full ISO datetime string
+                if (dateStr.contains("T")) {
+                    dateTime = LocalDateTime.parse(dateStr);
+                } else {
+                    // It's just a date string like "2025-04-16"
+                    LocalDate date = LocalDate.parse(dateStr);
+                    // Set time to noon by default
+                    dateTime = LocalDateTime.of(date, LocalTime.NOON);
+                }
+                event.setDate(dateTime);
+            }
+
+            return ResponseEntity.ok(eventService.updateEvent(id, event));
+        } catch (DateTimeParseException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Invalid date format. Please use YYYY-MM-DD or ISO format.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
+    public ResponseEntity<?> deleteEvent(@PathVariable String id) {
         try {
             eventService.deleteEvent(id);
-            return ResponseEntity.ok(Map.of("message", "Event deleted successfully"));
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Event deleted successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/{eventId}/attendees/{attendeeId}")
-    public ResponseEntity<?> registerAttendeeToEvent(@PathVariable Long eventId, @PathVariable Long attendeeId) {
-        try {
-            EventAttendee eventAttendee = eventService.registerAttendeeToEvent(eventId, attendeeId);
-            return ResponseEntity.ok(eventAttendee);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
-        }
+    @GetMapping("/search")
+    public ResponseEntity<List<Event>> searchEvents(@RequestParam String keyword) {
+        return new ResponseEntity<>(eventService.searchEvents(keyword), HttpStatus.OK);
     }
 }

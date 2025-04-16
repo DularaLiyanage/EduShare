@@ -5,8 +5,6 @@ import com.edushare.backend.repository.AttendeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class AttendeeService {
     @Autowired
@@ -14,5 +12,9 @@ public class AttendeeService {
 
     public Attendee addAttendee(Attendee attendee) {
         return attendeeRepository.save(attendee);
+    }
+
+    public Attendee getAttendeeById(String id) {
+        return attendeeRepository.findById(id).orElse(null);  // Return null if not found
     }
 }

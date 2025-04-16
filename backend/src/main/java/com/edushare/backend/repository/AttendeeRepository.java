@@ -1,7 +1,7 @@
 package com.edushare.backend.repository;
 
 import com.edushare.backend.model.Attendee;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
+public interface AttendeeRepository extends MongoRepository<Attendee, String> {
 }

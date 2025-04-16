@@ -7,11 +7,11 @@ const EventDetail = ({ show, handleClose, eventId }) => {
   const [attendees, setAttendees] = useState([]);
 
   useEffect(() => {
-    if (show) {
+    if (show && eventId) {
       fetchEventDetails();
       fetchAttendees();
     }
-  }, [show]);
+  }, [show, eventId]);
 
   const fetchEventDetails = async () => {
     try {
@@ -37,7 +37,7 @@ const EventDetail = ({ show, handleClose, eventId }) => {
         <Modal.Title>Event Details</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {event && (
+        {event ? (
           <>
             <h5>Name</h5>
             <p>{event.name}</p>
@@ -50,9 +50,9 @@ const EventDetail = ({ show, handleClose, eventId }) => {
             <h5>Attendees</h5>
             {attendees.length > 0 ? (
               <ListGroup>
-                {attendees.map((attendee , index) => (
+                {attendees.map((attendee, index) => (
                   <ListGroup.Item key={attendee.id}>
-                    {index+1}. {attendee.firstName} {attendee.lastName} - {attendee.email} - {attendee.phoneNumber}
+                    {index + 1}. {attendee.firstName} {attendee.lastName} - {attendee.email} - {attendee.phoneNumber}
                   </ListGroup.Item>
                 ))}
               </ListGroup>
@@ -60,6 +60,8 @@ const EventDetail = ({ show, handleClose, eventId }) => {
               <p>No attendees yet</p>
             )}
           </>
+        ) : (
+          <p>Loading...</p>
         )}
       </Modal.Body>
       <Modal.Footer>

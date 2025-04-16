@@ -38,7 +38,7 @@ const EventDetail = ({ show, handleClose, eventId }) => {
       </Modal.Header>
       <Modal.Body>
         {event ? (
-          <>
+          <div className="event-detail">
             <h5>Name</h5>
             <p>{event.name}</p>
             <h5>Description</h5>
@@ -59,7 +59,7 @@ const EventDetail = ({ show, handleClose, eventId }) => {
             ) : (
               <p>No attendees yet</p>
             )}
-          </>
+          </div>
         ) : (
           <p>Loading...</p>
         )}

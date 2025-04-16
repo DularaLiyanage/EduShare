@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Button, Row, Col } from 'react-bootstrap';
 
 const EventCard = ({ event, handleEdit, handleDelete, handleView, handleAddAttendee }) => (
-  <Card style={{ width: '100%' }}>
+  <Card className="event-card" style={{ width: '100%' }}>
     <Card.Body>
       <Row>
         <Col className="d-flex justify-content-start">

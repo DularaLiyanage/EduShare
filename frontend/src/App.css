@@ -1,38 +1,246 @@
+/* Global Styles */
+:root {
+  --primary: #3498db;
+  --primary-dark: #2980b9;
+  --secondary: #2c3e50;
+  --success: #27ae60;
+  --danger: #e74c3c;
+  --light: #ecf0f1;
+  --dark: #2c3e50;
+  --grey: #95a5a6;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  background-color: #f5f7fa;
+  color: var(--secondary);
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
+}
+
+/* Header Styles */
+.header {
+  background-color: var(--secondary);
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  color: var(--white);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+/* EventList Styles */
+.event-list-container {
+  padding: 1.5rem 0;
+}
+
+.add-event-btn {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.add-event-btn:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* EventCard Styles */
+.event-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  overflow: hidden;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-card .card-body {
+  padding: 1.25rem;
+}
+
+.event-card .card-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--secondary);
+  margin-bottom: 0;
+}
+
+.event-card .btn {
+  border-radius: 4px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.event-card .btn:hover {
+  transform: translateY(-2px);
+}
+
+.event-card .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.event-card .btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.event-card .btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.event-card .btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background-color: var(--secondary);
+  color: var(--white);
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 1.25rem;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-header .btn-close {
+  color: var(--white);
+  opacity: 0.8;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Form Styles */
+.form-label {
+  font-weight: 500;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border-radius: 4px;
+  border: 1px solid #dfe6e9;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+/* EventDetail Styles */
+.event-detail h5 {
+  color: var(--secondary);
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-detail p {
+  margin-bottom: 1.25rem;
+}
+
+.list-group-item {
+  padding: 0.75rem 1.25rem;
+  border-color: #dfe6e9;
+}
+
+/* AttendeeForm Styles */
+.alert {
+  border-radius: 4px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Footer Styles */
+.footer {
+  background-color: var(--secondary);
+  color: var(--white);
+  padding: 1.5rem 0;
+  margin-top: auto;
+}
+
+.footer p {
+  margin-bottom: 0;
+}
+
+/* Responsive Button Adjustments */
+@media (max-width: 768px) {
+  .event-card .btn {
+    margin-bottom: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .card-title {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  min-height: 100px;
 }
 
-.App-link {
-  color: #61dafb;
+/* Add smooth animation transitions */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

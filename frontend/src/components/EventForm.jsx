@@ -10,32 +10,35 @@ const EventForm = ({ show, handleClose, handleSubmit, event }) => {
     location: ''
   });
 
+  // This effect will run when the 'event' prop or 'show' prop changes
   useEffect(() => {
-    if (event) {
-      // For existing events, we need to format the date from the backend
-      let formattedDate = '';
-      if (event.date) {
-        // If the date is a full ISO string, get just the date part
-        const dateObj = new Date(event.date);
-        formattedDate = dateObj.toISOString().split('T')[0];
+    if (show) {
+      if (event) {
+        // For editing an existing event
+        let formattedDate = '';
+        if (event.date) {
+          // If the date is a full ISO string, get just the date part
+          const dateObj = new Date(event.date);
+          formattedDate = dateObj.toISOString().split('T')[0];
+        }
+        
+        setEventData({
+          name: event.name || '',
+          description: event.description || '',
+          date: formattedDate || '',
+          location: event.location || ''
+        });
+      } else {
+        // For adding a new event, reset the form
+        setEventData({
+          name: '',
+          description: '',
+          date: '',
+          location: ''
+        });
       }
-      
-      setEventData({
-        name: event.name || '',
-        description: event.description || '',
-        date: formattedDate || '',
-        location: event.location || ''
-      });
-    } else {
-      // Reset form for new event
-      setEventData({
-        name: '',
-        description: '',
-        date: '',
-        location: ''
-      });
     }
-  }, [event]);
+  }, [event, show]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,11 +58,29 @@ const EventForm = ({ show, handleClose, handleSubmit, event }) => {
     }
     
     handleSubmit(formattedData);  // Send the formatted data
+    
+    // Reset the form data
+    setEventData({
+      name: '',
+      description: '',
+      date: '',
+      location: ''
+    });
+    
     handleClose();  // Close the modal
   };
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={() => {
+      // Reset form when modal is closed manually
+      setEventData({
+        name: '',
+        description: '',
+        date: '',
+        location: ''
+      });
+      handleClose();
+    }}>
       <Modal.Header closeButton>
         <Modal.Title>{event ? 'Edit Event' : 'Add New Event'}</Modal.Title>
       </Modal.Header>

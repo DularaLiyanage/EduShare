@@ -1,29 +1,29 @@
 package com.edushare.backend.controller;
 
+import com.edushare.backend.assembler.EventModelAssembler;
 import com.edushare.backend.model.Event;
 import com.edushare.backend.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/events")
+@CrossOrigin(origins = "http://localhost:3000")
 public class EventController {
 
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private EventModelAssembler eventModelAssembler;
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody Map<String, Object> eventData) {
@@ -36,25 +36,13 @@ public class EventController {
             // Handle date conversion
             String dateStr = (String) eventData.get("date");
             if (dateStr != null && !dateStr.isEmpty()) {
-                LocalDateTime dateTime;
-
-                // Check if it's a full ISO datetime string
-                if (dateStr.contains("T")) {
-                    dateTime = LocalDateTime.parse(dateStr);
-                } else {
-                    // It's just a date string like "2025-04-16"
-                    LocalDate date = LocalDate.parse(dateStr);
-                    // Set time to noon by default
-                    dateTime = LocalDateTime.of(date, LocalTime.NOON);
-                }
+                LocalDateTime dateTime = LocalDateTime.parse(dateStr);
                 event.setDate(dateTime);
             }
 
-            return new ResponseEntity<>(eventService.createEvent(event), HttpStatus.CREATED);
-        } catch (DateTimeParseException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Invalid date format. Please use YYYY-MM-DD or ISO format.");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            Event savedEvent = eventService.createEvent(event);
+            EntityModel<Event> eventModel = eventModelAssembler.toModel(savedEvent);
+            return new ResponseEntity<>(eventModel, HttpStatus.CREATED);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());
@@ -63,15 +51,26 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Event>> getAllEvents() {
-        return new ResponseEntity<>(eventService.getAllEvents(), HttpStatus.OK);
+    public ResponseEntity<?> getAllEvents() {
+        List<Event> events = eventService.getAllEvents();
+        List<EntityModel<Event>> eventModels = new ArrayList<>();
+        for (Event event : events) {
+            EntityModel<Event> eventModel = eventModelAssembler.toModel(event);
+            Link selfLink = WebMvcLinkBuilder.linkTo(EventController.class).slash(event.getId()).withSelfRel();
+            eventModel.add(selfLink);
+            eventModels.add(eventModel);
+        }
+        return new ResponseEntity<>(eventModels, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEventById(@PathVariable String id) {
         Optional<Event> event = eventService.getEventById(id);
         if (event.isPresent()) {
-            return ResponseEntity.ok(event.get());
+            EntityModel<Event> eventModel = eventModelAssembler.toModel(event.get());
+            Link selfLink = WebMvcLinkBuilder.linkTo(EventController.class).slash(id).withSelfRel();
+            eventModel.add(selfLink);
+            return new ResponseEntity<>(eventModel, HttpStatus.OK);
         } else {
             Map<String, String> response = new HashMap<>();
             response.put("error", "Event not found");
@@ -79,64 +78,54 @@ public class EventController {
         }
     }
 
+    // PUT method for updating an event
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable String id, @RequestBody Map<String, Object> eventData) {
         try {
+            // Find existing event
             Optional<Event> existingEvent = eventService.getEventById(id);
             if (!existingEvent.isPresent()) {
-                throw new RuntimeException("Event not found for this id :: " + id);
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Event not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
+            // Update event details
             Event event = existingEvent.get();
             event.setName((String) eventData.get("name"));
             event.setDescription((String) eventData.get("description"));
             event.setLocation((String) eventData.get("location"));
 
-            // Handle date conversion
             String dateStr = (String) eventData.get("date");
             if (dateStr != null && !dateStr.isEmpty()) {
-                LocalDateTime dateTime;
-
-                // Check if it's a full ISO datetime string
-                if (dateStr.contains("T")) {
-                    dateTime = LocalDateTime.parse(dateStr);
-                } else {
-                    // It's just a date string like "2025-04-16"
-                    LocalDate date = LocalDate.parse(dateStr);
-                    // Set time to noon by default
-                    dateTime = LocalDateTime.of(date, LocalTime.NOON);
-                }
+                LocalDateTime dateTime = LocalDateTime.parse(dateStr);
                 event.setDate(dateTime);
             }
 
-            return ResponseEntity.ok(eventService.updateEvent(id, event));
-        } catch (DateTimeParseException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Invalid date format. Please use YYYY-MM-DD or ISO format.");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            Event updatedEvent = eventService.updateEvent(id, event);
+            EntityModel<Event> eventModel = eventModelAssembler.toModel(updatedEvent);
+            Link selfLink = WebMvcLinkBuilder.linkTo(EventController.class).slash(id).withSelfRel();
+            eventModel.add(selfLink);
+            return new ResponseEntity<>(eventModel, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // DELETE method for deleting an event
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable String id) {
         try {
             eventService.deleteEvent(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Event deleted successfully");
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Event>> searchEvents(@RequestParam String keyword) {
-        return new ResponseEntity<>(eventService.searchEvents(keyword), HttpStatus.OK);
     }
 }

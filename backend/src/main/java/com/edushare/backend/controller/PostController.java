@@ -55,7 +55,9 @@ public class PostController {
             // Save post to MongoDB
             Post savedPost = postService.createPost(post);
             
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedPost);
+            return ResponseEntity
+                .created(linkTo(methodOn(PostController.class).getPostById(savedPost.getId())).toUri())
+                .body(savedPost);
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -64,13 +66,21 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<CollectionModel<EntityModel<Post>>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        List<EntityModel<Post>> models = posts.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+            CollectionModel.of(models,
+                linkTo(methodOn(PostController.class).getAllPosts()).withSelfRel()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable String id) {
         return postService.getPostById(id)
+                .map(assembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -118,7 +128,7 @@ public class PostController {
             // Save updated post
             Post updatedPost = postService.updatePost(existingPost);
             
-            return ResponseEntity.ok(updatedPost);
+            return ResponseEntity.ok(assembler.toModel(updatedPost));
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -143,7 +153,12 @@ public class PostController {
             // Delete post from MongoDB
             postService.deletePost(id);
             
-            return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
+            return ResponseEntity.ok(Map.of(
+                "message", "Post deleted successfully",
+                "links", List.of(
+                    linkTo(methodOn(PostController.class).getAllPosts()).withRel("all-posts").getHref()
+                )
+            ));
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -1,17 +1,25 @@
 package com.edushare.backend.controller;
 
+import com.edushare.backend.assembler.PostModelAssembler;
 import com.edushare.backend.model.Post;
 import com.edushare.backend.service.FileUploadService;
 import com.edushare.backend.service.PostService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,11 +27,13 @@ public class PostController {
 
     private final PostService postService;
     private final FileUploadService fileUploadService;
+    private final PostModelAssembler assembler;
 
     @Autowired
-    public PostController(PostService postService, FileUploadService fileUploadService) {
+    public PostController(PostService postService, FileUploadService fileUploadService, PostModelAssembler assembler) {
         this.postService = postService;
         this.fileUploadService = fileUploadService;
+        this.assembler = assembler;
     }
 
     @PostMapping
@@ -66,8 +76,15 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable String userId) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    public ResponseEntity<CollectionModel<EntityModel<Post>>> getPostsByUserId(@PathVariable String userId) {
+        List<Post> posts = postService.getPostsByUserId(userId);
+        List<EntityModel<Post>> postModels = posts.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+            CollectionModel.of(postModels,
+                linkTo(methodOn(PostController.class).getPostsByUserId(userId)).withSelfRel()));
     }
 
     @PutMapping("/{id}")

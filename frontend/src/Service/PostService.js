@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/posts'; // Replace with your backend URL
+const API_URL = 'http://localhost:8080/api/posts';
 
 const getAllPosts = async () => {
   const response = await axios.get(API_URL);
-  return response.data._embedded.posts; // Adjust based on your HATEOAS response structure
+  return response.data._embedded.posts;
 };
 
 const createPost = async (formData) => {

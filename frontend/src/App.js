@@ -4,6 +4,7 @@ import EventList from './components/EventList.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import PostList from './components/PostList.jsx';
+import PostForm from './components/PostForm.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {

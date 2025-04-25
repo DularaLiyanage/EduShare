@@ -62,56 +62,68 @@ const PostList = () => {
   };
 
   return (
-    <div className="post-list-container">
-      <h2>Posts</h2>
+    <div className="container mt-4">
+      <h2 className="mb-4">Posts</h2>
 
       {/* Create Post */}
-      <div className="create-post">
+      <div className="card mb-4 p-4">
         <h3>Create Post</h3>
-        <textarea
-          placeholder="Description"
-          value={newPost.description}
-          onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
-        />
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setNewPost({ ...newPost, files: e.target.files })}
-        />
-        <button onClick={handleCreatePost}>Create</button>
+        <div className="form-group mb-3">
+          <textarea
+            className="form-control"
+            placeholder="Description"
+            value={newPost.description}
+            onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
+          />
+        </div>
+        <div className="form-group mb-3">
+          <input
+            type="file"
+            multiple
+            className="form-control"
+            onChange={(e) => setNewPost({ ...newPost, files: e.target.files })}
+          />
+        </div>
+        <button className="btn btn-primary" onClick={handleCreatePost}>Create</button>
       </div>
 
       {/* Edit Post */}
       {editingPost && (
-        <div className="edit-post">
+        <div className="card mb-4 p-4">
           <h3>Edit Post</h3>
-          <textarea
-            placeholder="Description"
-            value={editingPost.description}
-            onChange={(e) => setEditingPost({ ...editingPost, description: e.target.value })}
-          />
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setEditingPost({ ...editingPost, files: e.target.files })}
-          />
-          <button onClick={handleUpdatePost}>Update</button>
-          <button className="cancel" onClick={() => setEditingPost(null)}>Cancel</button>
+          <div className="form-group mb-3">
+            <textarea
+              className="form-control"
+              placeholder="Description"
+              value={editingPost.description}
+              onChange={(e) => setEditingPost({ ...editingPost, description: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <input
+              type="file"
+              multiple
+              className="form-control"
+              onChange={(e) => setEditingPost({ ...editingPost, files: e.target.files })}
+            />
+          </div>
+          <button className="btn btn-success" onClick={handleUpdatePost}>Update</button>
+          <button className="btn btn-secondary ml-2" onClick={() => setEditingPost(null)}>Cancel</button>
         </div>
       )}
 
       {/* List Posts */}
       <div className="post-list">
-        <ul>
+        <ul className="list-group">
           {posts.map((post) => (
-            <li key={post.id}>
-              <h3>{post.description}</h3>
+            <li key={post.id} className="list-group-item mb-3">
+              <h5>{post.description}</h5>
               {post.mediaUrls &&
                 post.mediaUrls.map((url, index) => (
-                  <img key={index} src={url} alt="Post media" />
+                  <img key={index} src={url} alt="Post media" className="img-fluid mb-2" />
                 ))}
-              <button onClick={() => setEditingPost(post)}>Edit</button>
-              <button className="delete" onClick={() => handleDeletePost(post.id)}>Delete</button>
+              <button className="btn btn-warning mr-2" onClick={() => setEditingPost(post)}>Edit</button>
+              <button className="btn btn-danger" onClick={() => handleDeletePost(post.id)}>Delete</button>
             </li>
           ))}
         </ul>

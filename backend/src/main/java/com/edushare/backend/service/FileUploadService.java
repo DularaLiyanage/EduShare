@@ -31,7 +31,7 @@ public class FileUploadService {
     private final List<String> allowedVideoTypes = Arrays.asList("video/mp4", "video/quicktime", "video/x-msvideo");
     
     // Maximum video duration in seconds
-    private final int MAX_VIDEO_DURATION = 30;
+    //private final int MAX_VIDEO_DURATION = 30;
     
     // Maximum number of files per post
     private final int MAX_FILES_PER_POST = 3;

@@ -1,17 +1,24 @@
 package com.edushare.backend.controller;
 
+import com.edushare.backend.assembler.PostModelAssembler;
 import com.edushare.backend.model.Post;
 import com.edushare.backend.service.FileUploadService;
 import com.edushare.backend.service.PostService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,11 +26,13 @@ public class PostController {
 
     private final PostService postService;
     private final FileUploadService fileUploadService;
+    private final PostModelAssembler assembler;
 
     @Autowired
-    public PostController(PostService postService, FileUploadService fileUploadService) {
+    public PostController(PostService postService, FileUploadService fileUploadService, PostModelAssembler assembler) {
         this.postService = postService;
         this.fileUploadService = fileUploadService;
+        this.assembler = assembler;
     }
 
     @PostMapping
@@ -45,7 +54,9 @@ public class PostController {
             // Save post to MongoDB
             Post savedPost = postService.createPost(post);
             
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedPost);
+            return ResponseEntity
+                .created(linkTo(methodOn(PostController.class).getPostById(savedPost.getId())).toUri())
+                .body(savedPost);
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -54,20 +65,35 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<CollectionModel<EntityModel<Post>>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        List<EntityModel<Post>> models = posts.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+            CollectionModel.of(models,
+                linkTo(methodOn(PostController.class).getAllPosts()).withSelfRel()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable String id) {
         return postService.getPostById(id)
+                .map(assembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable String userId) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    public ResponseEntity<CollectionModel<EntityModel<Post>>> getPostsByUserId(@PathVariable String userId) {
+        List<Post> posts = postService.getPostsByUserId(userId);
+        List<EntityModel<Post>> postModels = posts.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+            CollectionModel.of(postModels,
+                linkTo(methodOn(PostController.class).getPostsByUserId(userId)).withSelfRel()));
     }
 
     @PutMapping("/{id}")
@@ -101,7 +127,7 @@ public class PostController {
             // Save updated post
             Post updatedPost = postService.updatePost(existingPost);
             
-            return ResponseEntity.ok(updatedPost);
+            return ResponseEntity.ok(assembler.toModel(updatedPost));
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -126,7 +152,12 @@ public class PostController {
             // Delete post from MongoDB
             postService.deletePost(id);
             
-            return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
+            return ResponseEntity.ok(Map.of(
+                "message", "Post deleted successfully",
+                "links", List.of(
+                    linkTo(methodOn(PostController.class).getAllPosts()).withRel("all-posts").getHref()
+                )
+            ));
             
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

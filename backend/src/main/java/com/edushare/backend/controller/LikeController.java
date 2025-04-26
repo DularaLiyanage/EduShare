@@ -42,7 +42,7 @@ public class LikeController {
         return ResponseEntity.ok(likes);
     }
 
-    // Optional: Get total like count
+    //  Get total like count
     @GetMapping("/count/{postId}")
     public ResponseEntity<Long> getLikeCount(@PathVariable String postId) {
         long count = likeService.countLikesByPostId(postId);

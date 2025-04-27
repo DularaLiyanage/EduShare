@@ -1,10 +1,8 @@
 package com.edushare.backend.controller;
 
-import com.edushare.backend.assembler.AttendeeModelAssembler;
 import com.edushare.backend.model.Attendee;
 import com.edushare.backend.service.AttendeeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,15 +18,11 @@ public class AttendeeController {
     @Autowired
     private AttendeeService attendeeService;
 
-    @Autowired
-    private AttendeeModelAssembler attendeeModelAssembler;
-
     @PostMapping
-    public ResponseEntity<EntityModel<Attendee>> addAttendee(@RequestBody Attendee attendee) {
+    public ResponseEntity<Attendee> addAttendee(@RequestBody Attendee attendee) {
         try {
             Attendee savedAttendee = attendeeService.addAttendee(attendee);
-            EntityModel<Attendee> attendeeModel = attendeeModelAssembler.toModel(savedAttendee);
-            return new ResponseEntity<>(attendeeModel, HttpStatus.CREATED);
+            return new ResponseEntity<>(savedAttendee, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -39,8 +33,7 @@ public class AttendeeController {
         try {
             Attendee attendee = attendeeService.getAttendeeById(id);
             if (attendee != null) {
-                EntityModel<Attendee> attendeeModel = attendeeModelAssembler.toModel(attendee);
-                return new ResponseEntity<>(attendeeModel, HttpStatus.OK);
+                return new ResponseEntity<>(attendee, HttpStatus.OK);
             } else {
                 Map<String, String> response = new HashMap<>();
                 response.put("error", "Attendee not found");

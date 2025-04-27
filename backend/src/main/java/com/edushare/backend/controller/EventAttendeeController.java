@@ -1,21 +1,21 @@
 package com.edushare.backend.controller;
 
-import com.edushare.backend.assembler.EventAttendeeModelAssembler;
+import com.edushare.backend.model.Attendee;
 import com.edushare.backend.model.Event;
 import com.edushare.backend.model.EventAttendee;
-import com.edushare.backend.model.Attendee;
+import com.edushare.backend.service.AttendeeService;
 import com.edushare.backend.service.EventAttendeeService;
 import com.edushare.backend.service.EventService;
-import com.edushare.backend.service.AttendeeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -31,11 +31,11 @@ public class EventAttendeeController {
     @Autowired
     private AttendeeService attendeeService;
 
-    @Autowired
-    private EventAttendeeModelAssembler eventAttendeeModelAssembler;
-
     @PostMapping("/events/{eventId}/attendees/{attendeeId}")
-    public ResponseEntity<?> registerAttendeeToEvent(@PathVariable String eventId, @PathVariable String attendeeId) {
+    public ResponseEntity<?> registerAttendeeToEvent(
+            @PathVariable String eventId,
+            @PathVariable String attendeeId) {
+
         try {
             // Verify event exists
             Optional<Event> eventOpt = eventService.getEventById(eventId);
@@ -77,32 +77,18 @@ public class EventAttendeeController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            // Fetch the attendees for the event
             List<EventAttendee> eventAttendees = eventAttendeeService.getAttendeesByEventId(eventId);
-            List<Map<String, Object>> attendeesWithDetails = new ArrayList<>();
+            List<Attendee> attendees = new ArrayList<>();
 
+            // Get full attendee details for each registration
             for (EventAttendee ea : eventAttendees) {
-                // Fetch full attendee details
                 Attendee attendee = attendeeService.getAttendeeById(ea.getAttendeeId());
                 if (attendee != null) {
-                    Map<String, Object> attendeeDetails = new HashMap<>();
-                    attendeeDetails.put("attendee", attendee);
-                    attendeeDetails.put("eventAttendee", ea);
-
-                    // Adding HATEOAS link for each attendee
-                    Link selfLink = WebMvcLinkBuilder.linkTo(EventAttendeeController.class)
-                            .slash("events")
-                            .slash(eventId)
-                            .slash("attendees")
-                            .slash(ea.getId())
-                            .withSelfRel();
-                    attendeeDetails.put("_links", Collections.singletonMap("self", selfLink));
-
-                    attendeesWithDetails.add(attendeeDetails);
+                    attendees.add(attendee);
                 }
             }
 
-            return new ResponseEntity<>(attendeesWithDetails, HttpStatus.OK);
+            return new ResponseEntity<>(attendees, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());

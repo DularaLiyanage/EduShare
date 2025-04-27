@@ -49,20 +49,16 @@ const EventDetail = ({ show, handleClose, eventId }) => {
             <p>{event.location}</p>
             <h5>Attendees</h5>
             {attendees.length > 0 ? (
-  <ListGroup>
-    {attendees.map((attendeeData, index) => {
-      const attendee = attendeeData.attendee;  // Accessing the attendee object
-      return (
-        <ListGroup.Item key={attendee.id}>
-          {index + 1}. {attendee.firstName} {attendee.lastName} - {attendee.email} - {attendee.phoneNumber}
-        </ListGroup.Item>
-      );
-    })}
-  </ListGroup>
-) : (
-  <p>No attendees yet</p>
-)}
-
+              <ListGroup>
+                {attendees.map((attendee, index) => (
+                  <ListGroup.Item key={attendee.id}>
+                    {index + 1}. {attendee.firstName} {attendee.lastName} - {attendee.email} - {attendee.phoneNumber}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            ) : (
+              <p>No attendees yet</p>
+            )}
           </div>
         ) : (
           <p>Loading...</p>

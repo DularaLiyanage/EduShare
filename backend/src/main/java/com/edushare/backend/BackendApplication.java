@@ -15,6 +15,6 @@ public class BackendApplication {
 
 	@GetMapping("/")
 	public String hello() {
-		return "Hello, Welcome to EduShare!";
+		return "Hello, world!";
 	}
 }

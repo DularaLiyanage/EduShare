@@ -1,10 +1,10 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import EventList from './components/EventList.jsx';
+import EventList from './components/Events/EventList.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
-import PostList from './components/PostList.jsx';
-import PostForm from './components/PostForm.jsx';
+import PostList from './components/Posts/PostList.jsx';
+import PostForm from './components/Posts/PostForm.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {

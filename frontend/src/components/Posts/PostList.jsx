@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import postService from '../Service/PostService';
-import '../css/PostList.css'; 
+import postService from '../../Service/PostService';
+import '../../css/PostList.css'; 
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);

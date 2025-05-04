@@ -1,0 +1,15 @@
+/* css/Post.css */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa; /* Optional light gray background */
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+}

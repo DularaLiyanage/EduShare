@@ -7,19 +7,52 @@ import PostList from './components/Posts/PostList.jsx';
 import PostForm from './components/Posts/PostForm.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { AuthProvider } from './context/AuthContext';
+import AppNavbar from './components/layout/Navbar';
+import PrivateRoute from './components/layout/PrivateRoute';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import PostDetail from './components/Posts/PostDetail';
+
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Header />
-        <div className="main-content">
-          <Routes>
-            <Route path="/" element={<EventList />} /> {/* Default route for events */}
-            <Route path="/posts" element={<PostList />} /> {/* Route for posts */}
-          </Routes>
-        </div>
-        <Footer />
-      </div>
+      <AuthProvider>
+        <AppNavbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/events" element={<EventList />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/user/:userId"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/posts/:id"
+            element={
+              <PrivateRoute>
+                <PostDetail />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

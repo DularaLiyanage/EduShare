@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import postService from '../../Service/PostService';
-import '../../css/PostList.css'; 
+import { Card, Button, Container, Row, Col, Spinner, Modal, Image } from 'react-bootstrap';
+import { getAllPosts, deletePost } from '../../Service/PostService';
+import CreatePostModal from './CreatePostModal';
+import EditPostModal from './EditPostModal';
+import { useAuth } from '../../context/AuthContext';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ description: '', files: [] });
-  const [editingPost, setEditingPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchPosts();
@@ -13,122 +22,139 @@ const PostList = () => {
 
   const fetchPosts = async () => {
     try {
-      const data = await postService.getAllPosts();
-      setPosts(data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      setPosts([]);
+      setLoading(true);
+      const data = await getAllPosts();
+      setPosts(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
     }
   };
 
-  const handleCreatePost = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('description', newPost.description);
-      formData.append('userId', '123'); // Replace with actual user ID
-      Array.from(newPost.files).forEach((file) => formData.append('files', file));
-
-      const createdPost = await postService.createPost(formData);
-      setPosts([createdPost, ...posts]);
-      setNewPost({ description: '', files: [] });
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
-  };
-
-  const handleUpdatePost = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('description', editingPost.description);
-      if (editingPost.files) {
-        Array.from(editingPost.files).forEach((file) => formData.append('files', file));
+  const handleDelete = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await deletePost(postId);
+        fetchPosts();
+      } catch (err) {
+        setError(err.message);
       }
-
-      const updatedPost = await postService.updatePost(editingPost.id, formData);
-      setPosts(posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
-      setEditingPost(null);
-    } catch (error) {
-      console.error('Error updating post:', error);
     }
   };
 
-  const handleDeletePost = async (id) => {
-    try {
-      await postService.deletePost(id);
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    }
+  const openImageModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setShowImageModal(true);
   };
+
+  if (loading) {
+    return (
+      <Container className="text-center mt-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="mt-5">
+        <div className="alert alert-danger">Error: {error}</div>
+      </Container>
+    );
+  }
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Posts</h2>
-
-      {/* Create Post */}
-      <div className="card mb-4 p-4">
-        <h3>Create Post</h3>
-        <div className="form-group mb-3">
-          <textarea
-            className="form-control"
-            placeholder="Description"
-            value={newPost.description}
-            onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
-          />
-        </div>
-        <div className="form-group mb-3">
-          <input
-            type="file"
-            multiple
-            className="form-control"
-            onChange={(e) => setNewPost({ ...newPost, files: e.target.files })}
-          />
-        </div>
-        <button className="btn btn-primary" onClick={handleCreatePost}>Create</button>
-      </div>
-
-      {/* Edit Post */}
-      {editingPost && (
-        <div className="card mb-4 p-4">
-          <h3>Edit Post</h3>
-          <div className="form-group mb-3">
-            <textarea
-              className="form-control"
-              placeholder="Description"
-              value={editingPost.description}
-              onChange={(e) => setEditingPost({ ...editingPost, description: e.target.value })}
-            />
-          </div>
-          <div className="form-group mb-3">
-            <input
-              type="file"
-              multiple
-              className="form-control"
-              onChange={(e) => setEditingPost({ ...editingPost, files: e.target.files })}
-            />
-          </div>
-          <button className="btn btn-success" onClick={handleUpdatePost}>Update</button>
-          <button className="btn btn-secondary ml-2" onClick={() => setEditingPost(null)}>Cancel</button>
-        </div>
+    <Container className="mt-4">
+      {currentUser && (
+        <Row className="mb-4">
+          <Col>
+            <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+              Create New Post
+            </Button>
+          </Col>
+        </Row>
       )}
 
-      {/* List Posts */}
-      <div className="post-list">
-        <ul className="list-group">
-          {posts.map((post) => (
-            <li key={post.id} className="list-group-item mb-3">
-              <h5>{post.description}</h5>
-              {post.mediaUrls &&
-                post.mediaUrls.map((url, index) => (
-                  <img key={index} src={url} alt="Post media" className="img-fluid mb-2" />
-                ))}
-              <button className="btn btn-warning mr-2" onClick={() => setEditingPost(post)}>Edit</button>
-              <button className="btn btn-danger" onClick={() => handleDeletePost(post.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      {posts.length === 0 ? (
+        <div className="text-center mt-5">
+          <h4>No posts found</h4>
+        </div>
+      ) : (
+        posts.map((post) => (
+          <Card key={post.id} className="mb-4">
+            <Card.Body>
+              <Card.Title>{post.description}</Card.Title>
+              <Card.Subtitle className="mb-2 text-muted">
+                Posted by: {post.userId}
+              </Card.Subtitle>
+              
+              {post.mediaUrls && post.mediaUrls.length > 0 && (
+                <Row className="mt-3">
+                  {post.mediaUrls.map((url, index) => (
+                    <Col key={index} xs={6} md={4} lg={3} className="mb-3">
+                      <Image 
+                        src={url} 
+                        thumbnail 
+                        onClick={() => openImageModal(url)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              )}
+              
+              {currentUser && currentUser.id === post.userId && (
+                <div className="mt-3">
+                  <Button 
+                    variant="warning" 
+                    size="sm" 
+                    className="me-2"
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setShowEditModal(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="danger" 
+                    size="sm"
+                    onClick={() => handleDelete(post.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        ))
+      )}
+
+      <CreatePostModal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        refreshPosts={fetchPosts}
+      />
+
+      <EditPostModal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        post={selectedPost}
+        refreshPosts={fetchPosts}
+      />
+
+      <Modal show={showImageModal} onHide={() => setShowImageModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Image Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <Image src={selectedImage} fluid />
+        </Modal.Body>
+      </Modal>
+    </Container>
   );
 };
 

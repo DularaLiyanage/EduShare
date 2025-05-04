@@ -71,13 +71,7 @@ const CreatePostModal = ({ show, onHide, refreshPosts }) => {
             <Button variant="primary" type="submit" disabled={loading}>
               {loading ? (
                 <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
+                  <Spinner as="span" animation="border" size="sm" />
                   <span className="ms-2">Posting...</span>
                 </>
               ) : (

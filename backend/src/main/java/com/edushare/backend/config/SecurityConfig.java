@@ -26,7 +26,10 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/api/posts/**",
                                 "/api/learningPlan/**",
-                                "/api/events/**"
+                                "/api/events/**",
+                                "/api/likes/**",
+                                "/api/notifications/**",
+                                "/api/comments/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ); // Fixed missing semicolon

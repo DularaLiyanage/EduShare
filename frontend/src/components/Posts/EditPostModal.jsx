@@ -49,7 +49,7 @@ const EditPostModal = ({ show, onHide, post, refreshPosts }) => {
             />
           </Form.Group>
 
-          {post.mediaUrls && post.mediaUrls.length > 0 && (
+          {post.mediaUrls?.length > 0 && (
             <Form.Group className="mb-3">
               <Form.Label>Current Media</Form.Label>
               <div className="d-flex flex-wrap">
@@ -89,13 +89,7 @@ const EditPostModal = ({ show, onHide, post, refreshPosts }) => {
             <Button variant="primary" type="submit" disabled={loading}>
               {loading ? (
                 <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
+                  <Spinner as="span" animation="border" size="sm" />
                   <span className="ms-2">Updating...</span>
                 </>
               ) : (

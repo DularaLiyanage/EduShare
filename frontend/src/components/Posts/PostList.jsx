@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import postService from '../../Service/PostService';
-import '../../css/PostList.css'; 
+import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
+import { getAllPosts, deletePost } from '../../Service/PostService';
+import { likePost, unlikePost, getLikeCount } from '../../Service/LikeService';
+import { getCommentsByPostId, createComment, deleteComment } from '../../Service/CommentService';
+import CreatePostModal from './CreatePostModal';
+import EditPostModal from './EditPostModal';
+import { useAuth } from '../../context/AuthContext';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ description: '', files: [] });
-  const [editingPost, setEditingPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [comments, setComments] = useState({});
+  const [commentText, setCommentText] = useState({});
+  const [likeCounts, setLikeCounts] = useState({});
+  const [userLikes, setUserLikes] = useState({});
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchPosts();
@@ -13,122 +25,236 @@ const PostList = () => {
 
   const fetchPosts = async () => {
     try {
-      const data = await postService.getAllPosts();
-      setPosts(data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      setPosts([]);
-    }
-  };
-
-  const handleCreatePost = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('description', newPost.description);
-      formData.append('userId', '123'); // Replace with actual user ID
-      Array.from(newPost.files).forEach((file) => formData.append('files', file));
-
-      const createdPost = await postService.createPost(formData);
-      setPosts([createdPost, ...posts]);
-      setNewPost({ description: '', files: [] });
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
-  };
-
-  const handleUpdatePost = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('description', editingPost.description);
-      if (editingPost.files) {
-        Array.from(editingPost.files).forEach((file) => formData.append('files', file));
+      setLoading(true);
+      const data = await getAllPosts();
+      setPosts(data);
+      
+      // Initialize like counts and user likes
+      const counts = {};
+      const likes = {};
+      for (const post of data) {
+        counts[post.id] = await getLikeCount(post.id);
+        likes[post.id] = false; // Will be updated in checkUserLikes
       }
-
-      const updatedPost = await postService.updatePost(editingPost.id, formData);
-      setPosts(posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
-      setEditingPost(null);
-    } catch (error) {
-      console.error('Error updating post:', error);
+      setLikeCounts(counts);
+      setUserLikes(likes);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setLoading(false);
     }
   };
 
-  const handleDeletePost = async (id) => {
+  const fetchComments = async (postId) => {
     try {
-      await postService.deletePost(id);
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error('Error deleting post:', error);
+      const data = await getCommentsByPostId(postId);
+      setComments(prev => ({ ...prev, [postId]: data }));
+    } catch (err) {
+      console.error('Error fetching comments:', err);
     }
   };
+
+  const handleDelete = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await deletePost(postId);
+        fetchPosts();
+      } catch (err) {
+        console.error('Error deleting post:', err);
+      }
+    }
+  };
+
+  const handleCommentSubmit = async (postId) => {
+    if (!commentText[postId]?.trim()) return;
+    
+    try {
+      await createComment({
+        content: commentText[postId],
+        postId,
+        userId: currentUser.id
+      });
+      setCommentText(prev => ({ ...prev, [postId]: '' }));
+      fetchComments(postId);
+    } catch (err) {
+      console.error('Error submitting comment:', err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId, postId) => {
+    try {
+      await deleteComment(commentId);
+      fetchComments(postId);
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+    }
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      if (userLikes[postId]) {
+        await unlikePost(currentUser.id, postId);
+        setUserLikes(prev => ({ ...prev, [postId]: false }));
+        setLikeCounts(prev => ({ ...prev, [postId]: prev[postId] - 1 }));
+      } else {
+        await likePost(currentUser.id, postId);
+        setUserLikes(prev => ({ ...prev, [postId]: true }));
+        setLikeCounts(prev => ({ ...prev, [postId]: prev[postId] + 1 }));
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+  }
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Posts</h2>
-
-      {/* Create Post */}
-      <div className="card mb-4 p-4">
-        <h3>Create Post</h3>
-        <div className="form-group mb-3">
-          <textarea
-            className="form-control"
-            placeholder="Description"
-            value={newPost.description}
-            onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
-          />
-        </div>
-        <div className="form-group mb-3">
-          <input
-            type="file"
-            multiple
-            className="form-control"
-            onChange={(e) => setNewPost({ ...newPost, files: e.target.files })}
-          />
-        </div>
-        <button className="btn btn-primary" onClick={handleCreatePost}>Create</button>
-      </div>
-
-      {/* Edit Post */}
-      {editingPost && (
-        <div className="card mb-4 p-4">
-          <h3>Edit Post</h3>
-          <div className="form-group mb-3">
-            <textarea
-              className="form-control"
-              placeholder="Description"
-              value={editingPost.description}
-              onChange={(e) => setEditingPost({ ...editingPost, description: e.target.value })}
-            />
-          </div>
-          <div className="form-group mb-3">
-            <input
-              type="file"
-              multiple
-              className="form-control"
-              onChange={(e) => setEditingPost({ ...editingPost, files: e.target.files })}
-            />
-          </div>
-          <button className="btn btn-success" onClick={handleUpdatePost}>Update</button>
-          <button className="btn btn-secondary ml-2" onClick={() => setEditingPost(null)}>Cancel</button>
-        </div>
+    <Container className="mt-4">
+      {currentUser && (
+        <Row className="mb-4">
+          <Col>
+            <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+              Create New Post
+            </Button>
+          </Col>
+        </Row>
       )}
 
-      {/* List Posts */}
-      <div className="post-list">
-        <ul className="list-group">
-          {posts.map((post) => (
-            <li key={post.id} className="list-group-item mb-3">
-              <h5>{post.description}</h5>
-              {post.mediaUrls &&
-                post.mediaUrls.map((url, index) => (
-                  <img key={index} src={url} alt="Post media" className="img-fluid mb-2" />
+      {posts.map(post => (
+        <Card key={post.id} className="mb-4">
+          <Card.Body>
+            <Card.Title>{post.description}</Card.Title>
+            <Card.Subtitle className="mb-2 text-muted">
+              Posted by: {post.userId}
+            </Card.Subtitle>
+            
+            {post.mediaUrls?.length > 0 && (
+              <Row className="mt-3">
+                {post.mediaUrls.map((url, index) => (
+                  <Col key={index} xs={6} md={4} lg={3} className="mb-3">
+                    <Image src={url} thumbnail style={{ cursor: 'pointer' }} />
+                  </Col>
                 ))}
-              <button className="btn btn-warning mr-2" onClick={() => setEditingPost(post)}>Edit</button>
-              <button className="btn btn-danger" onClick={() => handleDeletePost(post.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+              </Row>
+            )}
+            
+            {/* Like Button and Count */}
+            <div className="d-flex align-items-center mt-3">
+              <Button 
+                variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
+                size="sm"
+                onClick={() => handleLike(post.id)}
+                className="me-2"
+              >
+                Like
+              </Button>
+              <span>{likeCounts[post.id] || 0} likes</span>
+            </div>
+            
+            {/* Comments Section */}
+            <div className="mt-3">
+              <h6>Comments</h6>
+              {!comments[post.id] && (
+                <Button 
+                  variant="link" 
+                  size="sm"
+                  onClick={() => fetchComments(post.id)}
+                >
+                  View comments
+                </Button>
+              )}
+              
+              {comments[post.id]?.map(comment => (
+                <div key={comment.id} className="mb-2 p-2 bg-light rounded">
+                  <div className="d-flex justify-content-between">
+                    <strong>{comment.userId}</strong>
+                    {currentUser?.id === comment.userId && (
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="text-danger"
+                        onClick={() => handleDeleteComment(comment.id, post.id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                  <p className="mb-0">{comment.content}</p>
+                </div>
+              ))}
+              
+              {currentUser && (
+                <Form className="mt-2" onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCommentSubmit(post.id);
+                }}>
+                  <Form.Group>
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      placeholder="Add a comment..."
+                      value={commentText[post.id] || ''}
+                      onChange={(e) => setCommentText(prev => ({
+                        ...prev,
+                        [post.id]: e.target.value
+                      }))}
+                    />
+                  </Form.Group>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    type="submit"
+                    className="mt-2"
+                  >
+                    Post Comment
+                  </Button>
+                </Form>
+              )}
+            </div>
+            
+            {/* Edit/Delete Buttons (for post owner) */}
+            {currentUser?.id === post.userId && (
+              <div className="mt-3">
+                <Button 
+                  variant="warning" 
+                  size="sm" 
+                  className="me-2"
+                  onClick={() => {
+                    setSelectedPost(post);
+                    setShowEditModal(true);
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button 
+                  variant="danger" 
+                  size="sm"
+                  onClick={() => handleDelete(post.id)}
+                >
+                  Delete
+                </Button>
+              </div>
+            )}
+          </Card.Body>
+        </Card>
+      ))}
+
+      <CreatePostModal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        refreshPosts={fetchPosts}
+      />
+
+      <EditPostModal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        post={selectedPost}
+        refreshPosts={fetchPosts}
+      />
+    </Container>
   );
 };
 

@@ -54,3 +54,14 @@ export const getLikedPostIdsByUser = async (userId) => {
     throw error;
   }
 };
+
+export const getUsersWhoLikedPost = async (postId) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/api/likes/post/${postId}/users`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching users who liked post:', error);
+    throw error;
+  }
+};
+

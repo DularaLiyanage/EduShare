@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
 import { getAllPosts, deletePost } from '../../Service/PostService';
-import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser  } from '../../Service/LikeService';
+import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser, getUsersWhoLikedPost  } from '../../Service/LikeService';
 import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
@@ -20,6 +20,9 @@ const PostList = () => {
   const { currentUser } = useAuth();
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState('');
+  const [showLikesModal, setShowLikesModal] = useState(false);
+const [likedUsers, setLikedUsers] = useState([]);
+
 
 
   useEffect(() => {
@@ -100,6 +103,17 @@ const PostList = () => {
     }
   };
 
+  const handleViewLikers = async (postId) => {
+    try {
+      const users = await getUsersWhoLikedPost(postId);
+      setLikedUsers(users);
+      setShowLikesModal(true);
+    } catch (err) {
+      console.error('Error loading liked users:', err);
+    }
+  };
+  
+
   const handleLike = async (postId) => {
     try {
       if (userLikes[postId]) {
@@ -161,7 +175,14 @@ const PostList = () => {
   >
     {userLikes[post.id] ? 'Liked' : 'Like'}
   </Button>
-  <span>{likeCounts[post.id] || 0} likes</span>
+  <Button
+  variant="link"
+  className="p-0 text-decoration-none"
+  onClick={() => handleViewLikers(post.id)}
+>
+  {likeCounts[post.id] || 0} likes
+</Button>
+
 </div>
 
             
@@ -322,6 +343,25 @@ const PostList = () => {
         post={selectedPost}
         refreshPosts={fetchPosts}
       />
+      <Modal show={showLikesModal} onHide={() => setShowLikesModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Users who liked this post</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {likedUsers.length > 0 ? (
+      <ul className="list-group">
+        {likedUsers.map((user, index) => (
+          <li key={index} className="list-group-item">
+            {user.fullName}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No likes yet.</p>
+    )}
+  </Modal.Body>
+</Modal>
+
     </Container>
   );
 };

@@ -6,10 +6,15 @@ import com.edushare.backend.repository.LikeRepository;
 import com.edushare.backend.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.edushare.backend.repository.UserRepository;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 @Service
 public class LikeService {
@@ -22,6 +27,9 @@ public class LikeService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+private UserRepository userRepository;
 
     public String likePost(Like like) {
         Like existingLike = likeRepository.findByUserIdAndPostId(like.getUserId(), like.getPostId());
@@ -76,5 +84,21 @@ public class LikeService {
                 .map(Like::getPostId)
                 .toList();
     }
+
+    public List<Map<String, String>> getUsersWhoLikedPost(String postId) {
+    List<Like> likes = likeRepository.findByPostId(postId);
+
+    return likes.stream().map(like -> {
+        String userId = like.getUserId();
+        String fullName = userRepository.findById(userId)
+            .map(user -> user.getFullName())
+            .orElse("Unknown User");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("fullName", fullName);
+        return map;
+    }).toList();
+}
     
 }

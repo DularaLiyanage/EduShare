@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/likes")
@@ -55,5 +57,13 @@ public ResponseEntity<List<String>> getLikedPostIdsByUser(@PathVariable String u
     List<String> likedPostIds = likeService.getLikedPostIdsByUser(userId);
     return ResponseEntity.ok(likedPostIds);
 }
+
+// Get list of users who liked a post
+@GetMapping("/post/{postId}/users")
+public ResponseEntity<List<Map<String, String>>> getUsersWhoLikedPost(@PathVariable String postId) {
+    List<Map<String, String>> users = likeService.getUsersWhoLikedPost(postId);
+    return ResponseEntity.ok(users);
+}
+
 
 }

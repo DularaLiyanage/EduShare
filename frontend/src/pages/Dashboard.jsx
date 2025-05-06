@@ -2,6 +2,7 @@ import React from 'react';
 import PostList from '../components/Posts/PostList';
 import { Container } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import NotificationPanel from '../components/Notifications/NotificationPanel';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -9,6 +10,7 @@ const Dashboard = () => {
   return (
     <Container className="mt-4">
       <h1>Dashboard</h1>
+      <NotificationPanel recipientId={currentUser?.uid} />
       <PostList currentUser={currentUser} />
     </Container>
   );

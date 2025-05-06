@@ -2,6 +2,7 @@ package com.edushare.backend.controller;
 
 import com.edushare.backend.model.Comment;
 import com.edushare.backend.service.CommentService;
+import com.edushare.backend.service.NotificationService;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/comments")
 public class CommentController {
 
+
+
     private final CommentService commentService;
     private final CommentModelAssembler assembler;
 
+    private final NotificationService notificationService;
+
+
     @Autowired
-    public CommentController(CommentService commentService, CommentModelAssembler assembler) {
-        this.commentService = commentService;
-        this.assembler = assembler;
-    }
+public CommentController(CommentService commentService, CommentModelAssembler assembler, NotificationService notificationService) {
+    this.commentService = commentService;
+    this.assembler = assembler;
+    this.notificationService = notificationService;
+}
+
 
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody Comment comment) {

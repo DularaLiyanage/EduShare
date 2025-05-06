@@ -35,17 +35,15 @@ const AppNavbar = () => {
           <Nav>
             {currentUser ? (
               <>
-                <Navbar.Text className="me-3">
-        Welcome, {currentUser.fullName}
-      </Navbar.Text>
+                <Navbar.Text className="me-3 d-flex align-items-center">
+  Welcome, {currentUser.fullName}
+  <Link to="/notifications" className="ms-3 text-white">
+    <FaBell />
+  </Link>
+</Navbar.Text>
 
-      <FaBell
-        size={20}
-        color="white"
-        style={{ cursor: 'pointer', marginRight: '20px' }}
-        onClick={() => navigate('/notifications')}
-      />
 
+      
       <Button variant="outline-light" onClick={handleLogout}>
         Logout
       </Button>

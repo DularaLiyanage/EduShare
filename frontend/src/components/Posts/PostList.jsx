@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
 import { getAllPosts, deletePost } from '../../Service/PostService';
 import { likePost, unlikePost, getLikeCount } from '../../Service/LikeService';
-import { getCommentsByPostId, createComment, deleteComment } from '../../Service/CommentService';
+import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
@@ -18,6 +18,9 @@ const PostList = () => {
   const [likeCounts, setLikeCounts] = useState({});
   const [userLikes, setUserLikes] = useState({});
   const { currentUser } = useAuth();
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+
 
   useEffect(() => {
     fetchPosts();
@@ -169,25 +172,81 @@ const PostList = () => {
                 </Button>
               )}
               
-              {comments[post.id]?.map(comment => (
-                <div key={comment.id} className="mb-2 p-2 bg-light rounded">
-                  <div className="d-flex justify-content-between">
-                    <strong>{comment.userId}</strong>
-                    {currentUser?.id === comment.userId && (
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        className="text-danger"
-                        onClick={() => handleDeleteComment(comment.id, post.id)}
-                      >
-                        Delete
-                      </Button>
+              {comments[post.id]?.map(comment => {
+                const isOwner = currentUser?.id === comment.userId;
+                const isEditing = editingCommentId === comment.id;
+
+                return (
+                  <div key={comment.id} className="mb-2 p-2 bg-light rounded">
+                    <div className="d-flex justify-content-between">
+                    <strong>{comment.userFullName || comment.userId}</strong>
+
+                      {isOwner && !isEditing && (
+                        <div>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="text-primary"
+                            onClick={() => {
+                              setEditingCommentId(comment.id);
+                              setEditingCommentText(comment.content);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="text-danger"
+                            onClick={() => handleDeleteComment(comment.id, post.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {isEditing ? (
+                      <>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          value={editingCommentText}
+                          onChange={(e) => setEditingCommentText(e.target.value)}
+                        />
+                        <div className="mt-1">
+                          <Button
+                            variant="success"
+                            size="sm"
+                            className="me-2"
+                            onClick={async () => {
+                              try {
+                                await updateComment(comment.id, editingCommentText);
+                                setEditingCommentId(null);
+                                fetchComments(post.id);
+                              } catch (err) {
+                                console.error('Error updating comment:', err);
+                              }
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setEditingCommentId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mb-0">{comment.content}</p>
                     )}
                   </div>
-                  <p className="mb-0">{comment.content}</p>
-                </div>
-              ))}
-              
+                );
+              })}
+
               {currentUser && (
                 <Form className="mt-2" onSubmit={(e) => {
                   e.preventDefault();
@@ -216,7 +275,7 @@ const PostList = () => {
                 </Form>
               )}
             </div>
-            
+
             {/* Edit/Delete Buttons (for post owner) */}
             {currentUser?.id === post.userId && (
               <div className="mt-3">
@@ -244,6 +303,7 @@ const PostList = () => {
         </Card>
       ))}
 
+      {/* Post Creation & Editing Modals */}
       <CreatePostModal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}

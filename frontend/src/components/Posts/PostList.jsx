@@ -106,6 +106,7 @@ const PostList = () => {
       console.error('Error toggling like:', err);
     }
   };
+  
 
   if (loading) {
     return <div className="text-center mt-5"><Spinner animation="border" /></div>;
@@ -143,16 +144,17 @@ const PostList = () => {
             
             {/* Like Button and Count */}
             <div className="d-flex align-items-center mt-3">
-              <Button 
-                variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
-                size="sm"
-                onClick={() => handleLike(post.id)}
-                className="me-2"
-              >
-                Like
-              </Button>
-              <span>{likeCounts[post.id] || 0} likes</span>
-            </div>
+  <Button 
+    variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
+    size="sm"
+    onClick={() => handleLike(post.id)}
+    className="me-2"
+  >
+    {userLikes[post.id] ? 'Liked' : 'Like'}
+  </Button>
+  <span>{likeCounts[post.id] || 0} likes</span>
+</div>
+
             
             {/* Comments Section */}
             <div className="mt-3">

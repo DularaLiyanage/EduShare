@@ -48,4 +48,12 @@ public class LikeController {
         long count = likeService.countLikesByPostId(postId);
         return ResponseEntity.ok(count);
     }
+
+    // Get all postIds liked by a specific user
+@GetMapping("/user/{userId}")
+public ResponseEntity<List<String>> getLikedPostIdsByUser(@PathVariable String userId) {
+    List<String> likedPostIds = likeService.getLikedPostIdsByUser(userId);
+    return ResponseEntity.ok(likedPostIds);
+}
+
 }

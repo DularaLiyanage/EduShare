@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
 import { getAllPosts, deletePost } from '../../Service/PostService';
-import { likePost, unlikePost, getLikeCount } from '../../Service/LikeService';
+import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser  } from '../../Service/LikeService';
 import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
@@ -31,23 +31,29 @@ const PostList = () => {
       setLoading(true);
       const data = await getAllPosts();
       setPosts(data);
-      
-      // Initialize like counts and user likes
+  
+      // Like counts
       const counts = {};
-      const likes = {};
       for (const post of data) {
         counts[post.id] = await getLikeCount(post.id);
-        likes[post.id] = false; // Will be updated in checkUserLikes
       }
       setLikeCounts(counts);
+  
+      // Liked post IDs for current user
+      const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
+      const likes = {};
+      for (const post of data) {
+        likes[post.id] = likedIds.includes(post.id);
+      }
       setUserLikes(likes);
-      
+  
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      console.error('Error fetching posts or likes:', err);
       setLoading(false);
     }
   };
+  
 
   const fetchComments = async (postId) => {
     try {

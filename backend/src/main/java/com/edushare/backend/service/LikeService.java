@@ -69,4 +69,12 @@ public class LikeService {
     public long countLikesByPostId(String postId) {
         return likeRepository.findByPostId(postId).size();
     }
+
+    public List<String> getLikedPostIdsByUser(String userId) {
+        return likeRepository.findByUserId(userId)
+                .stream()
+                .map(Like::getPostId)
+                .toList();
+    }
+    
 }

@@ -42,4 +42,15 @@ export const getLikeCount = async (postId) => {
     console.error('Error fetching like count:', error);
     throw error;
   }
+  
+};
+
+export const getLikedPostIdsByUser = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching liked post IDs:', error);
+    throw error;
+  }
 };

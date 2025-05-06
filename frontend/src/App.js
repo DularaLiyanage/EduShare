@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
+import NotificationsPanel from './components/Notifications/NotificationsPanel';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/notifications" element={<NotificationsPanel />} />
         </Routes>
       </AuthProvider>
     </Router>

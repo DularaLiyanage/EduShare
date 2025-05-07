@@ -6,6 +6,9 @@ import { getCommentsByPostId, createComment, deleteComment } from '../../Service
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
+import '../../index.css';  // Default styles
+import '../../App.css';
+
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -29,12 +32,11 @@ const PostList = () => {
       const data = await getAllPosts();
       setPosts(data);
       
-      // Initialize like counts and user likes
       const counts = {};
       const likes = {};
       for (const post of data) {
         counts[post.id] = await getLikeCount(post.id);
-        likes[post.id] = false; // Will be updated in checkUserLikes
+        likes[post.id] = false;
       }
       setLikeCounts(counts);
       setUserLikes(likes);
@@ -124,7 +126,7 @@ const PostList = () => {
       )}
 
       {posts.map(post => (
-        <Card key={post.id} className="mb-4">
+        <Card key={post.id} className="post-card mb-4">
           <Card.Body>
             <Card.Title>{post.description}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">
@@ -141,7 +143,6 @@ const PostList = () => {
               </Row>
             )}
             
-            {/* Like Button and Count */}
             <div className="d-flex align-items-center mt-3">
               <Button 
                 variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
@@ -154,7 +155,6 @@ const PostList = () => {
               <span>{likeCounts[post.id] || 0} likes</span>
             </div>
             
-            {/* Comments Section */}
             <div className="mt-3">
               <h6>Comments</h6>
               {!comments[post.id] && (
@@ -215,7 +215,6 @@ const PostList = () => {
               )}
             </div>
             
-            {/* Edit/Delete Buttons (for post owner) */}
             {currentUser?.id === post.userId && (
               <div className="mt-3">
                 <Button 

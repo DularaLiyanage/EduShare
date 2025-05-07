@@ -1,12 +1,12 @@
 package com.edushare.backend.repository;
 
-import java.util.Optional;
-
-import com.edushare.backend.model.User;
+import com.edushare.backend.model.UserModel;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface UserRepository extends MongoRepository<User, String>{
-    Optional<User> findByUsername(String username);
-} 
+public interface UserRepository extends MongoRepository<UserModel, String> {
+    Optional<UserModel> findByEmail(String email);
+}

@@ -71,7 +71,52 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+feature-event-management
+        <div className="app-container">
+          {/* Fixed Navigation Bar */}
+          <div className="fixed-header">
+            <AppNavbar />
+          </div>
+          
+          {/* Scrollable Content Area */}
+          <div className="content-area">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/events" element={<EventList />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/user/:userId"
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/posts/:id"
+                element={
+                  <PrivateRoute>
+                    <PostDetail />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </div>
+          
+          {/* You can add Footer here if needed */}
+        </div>
+
         <AppContent />
+dev
       </AuthProvider>
     </Router>
   );

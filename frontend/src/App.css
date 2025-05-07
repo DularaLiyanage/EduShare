@@ -1,3 +1,4 @@
+
 /* Global Styles */
 :root {
   --primary: #3498db;
@@ -31,250 +32,137 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-main);
 }
 
-/* Header Styles */
-.header {
-  background-color: var(--bg-header);
-  padding: 1rem 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.header h1 {
-  color: var(--white);
-  margin: 0;
-  font-weight: 600;
-}
-
-/* Main Content Area */
-.main-content {
-  flex: 1;
-  padding: 2rem 0;
-  background-color: var(--bg-main);
-}
-
-/* EventList Styles */
-.event-list-container {
-  padding: 1.5rem 0;
-  background-color: transparent;
-}
-
-.add-event-btn {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  padding: 0.5rem 1.25rem;
-  font-weight: 500;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.add-event-btn:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* EventCard Styles */
-.event-card {
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-  border: none;
-  overflow: hidden;
+/* PostCard Enhancements */
+.post-card {
   background-color: var(--bg-card);
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 15px 0;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Button Styling */
+.post-card button {
+  background-color: var(--primary);
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.post-card button:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Post Modal Improvements */
+.post-modal {
+  border-radius: 10px;
+  background-color: var(--bg-modal);
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+/* Event Card Styling */
+.event-card {
+  background-color: var(--bg-card);
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 15px;
+  transition: all 0.3s ease;
 }
 
 .event-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-  background-color: var(--bg-hover);
+  transform: scale(1.05);
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-.event-card .card-body {
-  padding: 1.25rem;
-}
-
-.event-card .card-title {
-  font-weight: 600;
-  font-size: 1.25rem;
-  color: var(--secondary);
-  margin-bottom: 0;
-}
-
-.event-card .btn {
-  border-radius: 4px;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.9rem;
-  margin-right: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.event-card .btn:hover {
-  transform: translateY(-2px);
-}
-
-.event-card .btn-primary {
-  background-color: var(--primary);
-  border-color: var(--primary);
-}
-
-.event-card .btn-primary:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
-}
-
-.event-card .btn-success {
-  background-color: var(--success);
-  border-color: var(--success);
-}
-
-.event-card .btn-danger {
-  background-color: var(--danger);
-  border-color: var(--danger);
-}
-
-/* Modal Styles */
-.modal-content {
+/* Event Form Styling */
+.event-form input,
+.event-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
   border-radius: 8px;
+  border: 1px solid var(--grey);
+  font-size: 16px;
+}
+
+.event-form button {
+  background-color: var(--primary);
   border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  background-color: var(--bg-modal);
+  padding: 12px 20px;
+  font-size: 16px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.modal-header {
-  background-color: var(--secondary);
-  color: var(--white);
-  border-bottom: none;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  padding: 1.25rem;
+.event-form button:hover {
+  background-color: var(--primary-dark);
 }
 
-.modal-title {
-  font-weight: 600;
-}
-
-.modal-header .btn-close {
-  color: var(--white);
-  opacity: 0.8;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  background-color: var(--bg-modal);
-}
-
-.modal-footer {
-  border-top: none;
-  padding: 1rem 1.5rem 1.5rem;
-  background-color: var(--bg-modal);
-}
-
-/* Form Styles */
-.form-label {
-  font-weight: 500;
-  color: var(--secondary);
-  margin-bottom: 0.5rem;
-}
-
-.form-control {
-  border-radius: 4px;
-  border: 1px solid #dfe6e9;
-  padding: 0.75rem;
-  transition: all 0.2s ease;
-  background-color: var(--white);
-}
-
-.form-control:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-}
-
-textarea.form-control {
-  min-height: 120px;
-}
-
-/* EventDetail Styles */
-.event-detail h5 {
-  color: var(--secondary);
-  font-weight: 600;
-  margin-top: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.event-detail p {
-  margin-bottom: 1.25rem;
-}
-
-.list-group-item {
-  padding: 0.75rem 1.25rem;
-  border-color: #dfe6e9;
-  background-color: var(--white);
-}
-
-.list-group-item:hover {
-  background-color: var(--bg-hover);
-}
-
-/* AttendeeForm Styles */
-.alert {
-  border-radius: 4px;
-  padding: 0.75rem 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Footer Styles */
-.footer {
-  background-color: var(--bg-footer);
-  color: var(--white);
-  padding: 1.5rem 0;
-  margin-top: auto;
-}
-
-.footer p {
-  margin-bottom: 0;
-}
-
-/* Add a different background color for odd and even event cards for better visual separation */
-.event-card:nth-child(odd) {
-  background-color: var(--bg-card);
-}
-
-.event-card:nth-child(even) {
-  background-color: #f8fafc;
-}
-
-/* Responsive Button Adjustments */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .event-card .btn {
-    margin-bottom: 0.5rem;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.85rem;
+  .post-card, .event-card {
+    margin: 10px;
+    padding: 10px;
   }
-  
-  .card-title {
-    margin-bottom: 1rem;
+
+  .post-card button, .event-form button {
+    width: 100%;
+  }
+
+  .event-form input, .event-form textarea {
+    width: 100%;
+    padding: 10px;
+  }
+}
+/* Full background for the body or entire container */
+body {
+  background-image: url('./6.jpg');  /* Path to the image in the public folder */
+  background-size: cover; /* Ensures the image covers the entire screen */
+  background-position: center; /* Centers the background image */
+  background-attachment: fixed; /* Makes the background fixed when scrolling */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
+  height: 100vh; /* Ensures the background covers the entire height of the viewport */
+  margin: 0; /* Removes default margin */
+}
+
+/* Optional: If you want to add padding to the content */
+.content-container {
+  padding: 20px;
+}
+
+
+/* Update the content-container class to include the blur effect */
+.content-container {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 20px auto;
+  max-width: 1200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Add mobile responsiveness for content-container */
+@media (max-width: 768px) {
+  .content-container {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 10px;
   }
 }
 
-/* Loading Indicator */
-.loading-indicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100px;
-  background-color: rgba(255, 255, 255, 0.8);
-}
-
-/* Add smooth animation transitions */
-.fade-in {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}

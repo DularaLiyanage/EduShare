@@ -6,6 +6,9 @@ import { getCommentsByPostId, createComment, deleteComment, updateComment } from
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
+import '../../index.css';  // Default styles
+import '../../App.css';
+
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -41,11 +44,19 @@ const [likedUsers, setLikedUsers] = useState([]);
       setLoading(true);
       const data = await getAllPosts();
       setPosts(data);
+feature-event-management
+      
+
   
       // Like counts
+dev
       const counts = {};
       for (const post of data) {
         counts[post.id] = await getLikeCount(post.id);
+feature-event-management
+        likes[post.id] = false;
+
+ dev
       }
       setLikeCounts(counts);
   
@@ -155,7 +166,7 @@ const [likedUsers, setLikedUsers] = useState([]);
       )}
 
       {posts.map(post => (
-        <Card key={post.id} className="mb-4">
+        <Card key={post.id} className="post-card mb-4">
           <Card.Body>
             <Card.Title>{post.description}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">
@@ -172,7 +183,6 @@ const [likedUsers, setLikedUsers] = useState([]);
               </Row>
             )}
             
-            {/* Like Button and Count */}
             <div className="d-flex align-items-center mt-3">
   <Button 
     variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
@@ -193,7 +203,6 @@ const [likedUsers, setLikedUsers] = useState([]);
 </div>
 
             
-            {/* Comments Section */}
             <div className="mt-3">
               <h6>Comments</h6>
               {!comments[post.id] && (
@@ -314,8 +323,12 @@ const [likedUsers, setLikedUsers] = useState([]);
                 </Form>
               )}
             </div>
+feature-event-management
+            
+
 
             {/* Edit/Delete Buttons (for post owner) */}
+ dev
             {currentUser?.id === post.userId && (
               <div className="mt-3">
                 <Button 

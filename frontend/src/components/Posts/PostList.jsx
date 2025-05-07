@@ -342,7 +342,7 @@ const PostList = () => {
                                         setEditingCommentText(comment.content);
                                       }}
                                     >
-                                      Edit
+                                      ✏
                                     </Button>
                                     <Button
                                       variant="link"

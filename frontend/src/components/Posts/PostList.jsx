@@ -29,6 +29,13 @@ const [likedUsers, setLikedUsers] = useState([]);
     fetchPosts();
   }, []);
 
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // outputs like "5/7/2025, 4:31:20 AM"
+  };
+  
+
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -206,7 +213,11 @@ const [likedUsers, setLikedUsers] = useState([]);
                 return (
                   <div key={comment.id} className="mb-2 p-2 bg-light rounded">
                     <div className="d-flex justify-content-between">
-                    <strong>{comment.userFullName || comment.userId}</strong>
+                    <div>
+  <strong>{comment.userFullName || comment.userId}</strong>
+  <small className="text-muted ms-2">{formatTimestamp(comment.createdAt)}</small>
+</div>
+
 
                       {isOwner && !isEditing && (
                         <div>

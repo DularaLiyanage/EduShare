@@ -3,8 +3,10 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
 import EventCard from './EventCard';
 import EventForm from './EventForm';
 import EventDetail from './EventDetail';
-import RegisterAttendeeForm from './AttendeeForm';
+import RegisterAttendeeForm from './AttendeeForm'; // Make sure this import is present
 import axios from 'axios';
+import '../../index.css';  // Default styles
+import '../../App.css';
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -12,7 +14,7 @@ const EventList = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [eventId, setEventId] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
-  const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
+  const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false); // Added state for attendee modal
 
   const API_URL = 'http://localhost:8080/api/events';
 
@@ -69,55 +71,57 @@ const EventList = () => {
     setShowDetail(true);
   };
 
-  const handleAddAttendee = (id) => {
+  const handleAddAttendee = (id) => { // Added function to show attendee modal
     setEventId(id);
     setShowAddAttendeeModal(true);
   };
 
   return (
-    <Container>
-      <Row className="d-flex justify-content-end mb-3">
-        <Col xs="auto">
-          <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
-        </Col>
-      </Row>
-      <Row>
-        {events.length > 0 ? (
-          events.map((event,index) => (
-            <Col key={event.id} sm={12} className="mb-2">
-              <EventCard
-                event={event}
-                index={index}
-                handleEdit={handleEditEvent}
-                handleDelete={handleDeleteEvent}
-                handleView={handleViewEvent}
-                handleAddAttendee={handleAddAttendee}
-              />
-            </Col>
-          ))
-        ) : (
-          <Col sm={12}>
-            <p>No events available. Please add some events.</p>
+    <div className="content-container">
+      <Container>
+        <Row className="d-flex justify-content-end mb-3">
+          <Col xs="auto">
+            <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
           </Col>
-        )}
-      </Row>
-      <EventForm
-        show={showForm}
-        handleClose={() => setShowForm(false)}
-        handleSubmit={handleFormSubmit}
-        event={currentEvent}
-      />
-      <EventDetail
-        show={showDetail}
-        handleClose={() => setShowDetail(false)}
-        eventId={eventId}
-      />
-      <RegisterAttendeeForm
-        show={showAddAttendeeModal}
-        handleClose={() => setShowAddAttendeeModal(false)}
-        eventId={eventId}
-      />
-    </Container>
+        </Row>
+        <Row>
+          {events.length > 0 ? (
+            events.map((event,index) => (
+              <Col key={event.id} sm={12} className="mb-2">
+                <EventCard
+                  event={event}
+                  index={index}
+                  handleEdit={handleEditEvent}
+                  handleDelete={handleDeleteEvent}
+                  handleView={handleViewEvent}
+                  handleAddAttendee={handleAddAttendee} // Pass the handler to the EventCard
+                />
+              </Col>
+            ))
+          ) : (
+            <Col sm={12}>
+              <p>No events available. Please add some events.</p>
+            </Col>
+          )}
+        </Row>
+        <EventForm
+          show={showForm}
+          handleClose={() => setShowForm(false)}
+          handleSubmit={handleFormSubmit}
+          event={currentEvent}
+        />
+        <EventDetail
+          show={showDetail}
+          handleClose={() => setShowDetail(false)}
+          eventId={eventId}
+        />
+        <RegisterAttendeeForm
+          show={showAddAttendeeModal}
+          handleClose={() => setShowAddAttendeeModal(false)} // Handle closing the modal
+          eventId={eventId}
+        />
+      </Container>
+    </div>
   );
 };
 

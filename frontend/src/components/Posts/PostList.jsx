@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form, Dropdown, Alert } from 'react-bootstrap';
+import { FaHeart, FaRegHeart, FaComment, FaEllipsisH, FaTimes, FaUser, FaThumbsUp } from 'react-icons/fa';
 import { getAllPosts, deletePost } from '../../Service/PostService';
-import { likePost, unlikePost, getLikeCount } from '../../Service/LikeService';
-import { getCommentsByPostId, createComment, deleteComment } from '../../Service/CommentService';
+import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser, getUsersWhoLikedPost } from '../../Service/LikeService';
+import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
+import '../../App.css';
+import '../../index.css';
+import '../../css/Post.css'; // We'll create this CSS file
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -18,30 +22,52 @@ const PostList = () => {
   const [likeCounts, setLikeCounts] = useState({});
   const [userLikes, setUserLikes] = useState({});
   const { currentUser } = useAuth();
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likedUsers, setLikedUsers] = useState([]);
+  const [expandedComments, setExpandedComments] = useState({});
 
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    return date.toLocaleDateString();
+  };
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
       const data = await getAllPosts();
       setPosts(data);
-      
-      // Initialize like counts and user likes
+
       const counts = {};
       const likes = {};
       for (const post of data) {
         counts[post.id] = await getLikeCount(post.id);
-        likes[post.id] = false; // Will be updated in checkUserLikes
+        likes[post.id] = false;
       }
       setLikeCounts(counts);
+
+      const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
+      for (const post of data) {
+        likes[post.id] = likedIds.includes(post.id);
+      }
       setUserLikes(likes);
-      
+
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      console.error('Error fetching posts or likes:', err);
       setLoading(false);
     }
   };
@@ -50,8 +76,17 @@ const PostList = () => {
     try {
       const data = await getCommentsByPostId(postId);
       setComments(prev => ({ ...prev, [postId]: data }));
+      setExpandedComments(prev => ({ ...prev, [postId]: true }));
     } catch (err) {
       console.error('Error fetching comments:', err);
+    }
+  };
+
+  const toggleComments = (postId) => {
+    if (!expandedComments[postId]) {
+      fetchComments(postId);
+    } else {
+      setExpandedComments(prev => ({ ...prev, [postId]: false }));
     }
   };
 
@@ -68,7 +103,7 @@ const PostList = () => {
 
   const handleCommentSubmit = async (postId) => {
     if (!commentText[postId]?.trim()) return;
-    
+
     try {
       await createComment({
         content: commentText[postId],
@@ -91,6 +126,16 @@ const PostList = () => {
     }
   };
 
+  const handleViewLikers = async (postId) => {
+    try {
+      const users = await getUsersWhoLikedPost(postId);
+      setLikedUsers(users);
+      setShowLikesModal(true);
+    } catch (err) {
+      console.error('Error loading liked users:', err);
+    }
+  };
+
   const handleLike = async (postId) => {
     try {
       if (userLikes[postId]) {
@@ -108,137 +153,294 @@ const PostList = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
 
   return (
-    <Container className="mt-4">
+    <Container className="post-container py-4">
       {currentUser && (
-        <Row className="mb-4">
-          <Col>
-            <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-              Create New Post
-            </Button>
-          </Col>
-        </Row>
+        <Card className="mb-4 create-post-card">
+          <Card.Body className="p-3">
+            <div className="d-flex align-items-center">
+              <Image 
+                src={currentUser.photoURL || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                roundedCircle 
+                width={40} 
+                height={40} 
+                className="me-3"
+              />
+              <Button 
+                variant="light" 
+                className="flex-grow-1 text-start post-input-placeholder"
+                onClick={() => setShowCreateModal(true)}
+              >
+                What's on your mind?
+              </Button>
+            </div>
+            <hr className="my-2" />
+            <div className="d-flex justify-content-between">
+              <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
+                <i className="bi bi-image-fill me-1"></i> Photo/Video
+              </Button>
+              <Button variant="link" className="text-muted">
+                <i className="bi bi-people-fill me-1"></i> Tag Friends
+              </Button>
+              <Button variant="link" className="text-muted">
+                <i className="bi bi-emoji-smile-fill me-1"></i> Feeling
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
       )}
 
       {posts.map(post => (
-        <Card key={post.id} className="mb-4">
-          <Card.Body>
-            <Card.Title>{post.description}</Card.Title>
-            <Card.Subtitle className="mb-2 text-muted">
-              Posted by: {post.userId}
-            </Card.Subtitle>
-            
-            {post.mediaUrls?.length > 0 && (
-              <Row className="mt-3">
-                {post.mediaUrls.map((url, index) => (
-                  <Col key={index} xs={6} md={4} lg={3} className="mb-3">
-                    <Image src={url} thumbnail style={{ cursor: 'pointer' }} />
-                  </Col>
-                ))}
-              </Row>
+        <Card key={post.id} className="mb-4 post-card">
+          <Card.Header className="d-flex justify-content-between align-items-center bg-white">
+            <div className="d-flex align-items-center">
+              <Image 
+                src={post.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                roundedCircle 
+                width={40} 
+                height={40} 
+                className="me-3"
+              />
+              <div>
+                <h6 className="mb-0">{post.userFullName || `User ${post.userId}`}</h6>
+                <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
+              </div>
+            </div>
+            {currentUser?.id === post.userId && (
+            <Dropdown>
+              <Dropdown.Toggle variant="link" id="post-options" className="text-muted p-0">
+                <FaEllipsisH />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => {
+                  setSelectedPost(post);
+                  setShowEditModal(true);
+                }}>
+                  Edit Post
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleDelete(post.id)} className="text-danger">
+                  Delete Post
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
+        </Card.Header>
+          
+          <Card.Body className="p-0">
+            {post.description && (
+              <div className="p-3">
+                <Card.Text>{post.description}</Card.Text>
+              </div>
             )}
             
-            {/* Like Button and Count */}
-            <div className="d-flex align-items-center mt-3">
-              <Button 
-                variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
-                size="sm"
-                onClick={() => handleLike(post.id)}
-                className="me-2"
-              >
-                Like
-              </Button>
-              <span>{likeCounts[post.id] || 0} likes</span>
-            </div>
-            
-            {/* Comments Section */}
-            <div className="mt-3">
-              <h6>Comments</h6>
-              {!comments[post.id] && (
-                <Button 
-                  variant="link" 
-                  size="sm"
-                  onClick={() => fetchComments(post.id)}
-                >
-                  View comments
-                </Button>
-              )}
-              
-              {comments[post.id]?.map(comment => (
-                <div key={comment.id} className="mb-2 p-2 bg-light rounded">
-                  <div className="d-flex justify-content-between">
-                    <strong>{comment.userId}</strong>
-                    {currentUser?.id === comment.userId && (
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        className="text-danger"
-                        onClick={() => handleDeleteComment(comment.id, post.id)}
-                      >
-                        Delete
-                      </Button>
+            {post.mediaUrls?.length > 0 && (
+              <div className="post-media-container">
+                {post.mediaUrls.length === 1 ? (
+                  <div className="single-media">
+                    {post.mediaUrls[0].endsWith('.mp4') ? (
+                      <video controls className="w-100">
+                        <source src={post.mediaUrls[0]} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <Image src={post.mediaUrls[0]} className="w-100" />
                     )}
                   </div>
-                  <p className="mb-0">{comment.content}</p>
-                </div>
-              ))}
-              
-              {currentUser && (
-                <Form className="mt-2" onSubmit={(e) => {
-                  e.preventDefault();
-                  handleCommentSubmit(post.id);
-                }}>
-                  <Form.Group>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      placeholder="Add a comment..."
-                      value={commentText[post.id] || ''}
-                      onChange={(e) => setCommentText(prev => ({
-                        ...prev,
-                        [post.id]: e.target.value
-                      }))}
-                    />
-                  </Form.Group>
-                  <Button 
-                    variant="primary" 
-                    size="sm" 
-                    type="submit"
-                    className="mt-2"
-                  >
-                    Post Comment
-                  </Button>
-                </Form>
-              )}
-            </div>
-            
-            {/* Edit/Delete Buttons (for post owner) */}
-            {currentUser?.id === post.userId && (
-              <div className="mt-3">
-                <Button 
-                  variant="warning" 
-                  size="sm" 
-                  className="me-2"
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditModal(true);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button 
-                  variant="danger" 
-                  size="sm"
-                  onClick={() => handleDelete(post.id)}
-                >
-                  Delete
-                </Button>
+                ) : (
+                  <Row className="g-0">
+                    {post.mediaUrls.slice(0, 3).map((url, index) => (
+                      <Col key={index} xs={post.mediaUrls.length > 2 ? 6 : 12}>
+                        <div className="media-wrapper">
+                          <Image src={url} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                          {index === 2 && post.mediaUrls.length > 3 && (
+                            <div className="media-count-overlay">
+                              +{post.mediaUrls.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                )}
               </div>
             )}
           </Card.Body>
+          
+          <Card.Footer className="bg-white">
+          <div className="d-flex justify-content-between px-3 py-2 border-bottom">
+              <div className="d-flex align-items-center">
+                <Button
+                  variant="link"
+                  className="p-0 text-decoration-none text-muted"
+                  onClick={() => handleViewLikers(post.id)}
+                >
+                  <FaThumbsUp className="me-1" /> {likeCounts[post.id] || 0} likes
+                </Button>
+                <span className="text-muted ms-3">
+                  <FaComment className="me-1" /> {comments[post.id]?.length || 0} comments
+                </span>
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-around py-2 border-bottom">
+              <Button 
+                variant="link" 
+                className={`text-decoration-none ${userLikes[post.id] ? 'text-danger' : 'text-muted'}`}
+                onClick={() => handleLike(post.id)}
+              >
+                <FaHeart className="me-1" /> Like
+              </Button>
+              <Button 
+                variant="link" 
+                className="text-decoration-none text-muted"
+                onClick={() => toggleComments(post.id)}
+              >
+                <FaComment className="me-1" /> Comment
+              </Button>
+            </div>
+            
+            {expandedComments[post.id] && (
+              <div className="p-3">
+                {comments[post.id]?.map(comment => {
+                  const isOwner = currentUser?.id === comment.userId;
+                  const isEditing = editingCommentId === comment.id;
+
+                  return (
+                    <div key={comment.id} className="mb-3 d-flex">
+                      <Image 
+                        src={comment.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                        roundedCircle 
+                        width={32} 
+                        height={32} 
+                        className="me-2"
+                      />
+                      <div className="flex-grow-1">
+                        <div className="bg-light p-2 rounded">
+                          <div className="d-flex justify-content-between">
+                            <div>
+                              <strong>{comment.userFullName || comment.userId}</strong>
+                              <small className="text-muted ms-2">{formatTimestamp(comment.createdAt)}</small>
+                            </div>
+                            {isOwner && (
+                              <div>
+                                {!isEditing && (
+                                  <>
+                                    <Button
+                                      variant="link"
+                                      size="sm"
+                                      className="text-muted p-0 me-1"
+                                      onClick={() => {
+                                        setEditingCommentId(comment.id);
+                                        setEditingCommentText(comment.content);
+                                      }}
+                                    >
+                                      ✏
+                                    </Button>
+                                    <Button
+                                      variant="link"
+                                      size="sm"
+                                      className="text-danger p-0"
+                                      onClick={() => handleDeleteComment(comment.id, post.id)}
+                                    >
+                                      <FaTimes />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {isEditing ? (
+                            <div className="mt-2">
+                              <Form.Control
+                                as="textarea"
+                                rows={2}
+                                value={editingCommentText}
+                                onChange={(e) => setEditingCommentText(e.target.value)}
+                                className="mb-2"
+                              />
+                              <div>
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  className="me-2"
+                                  onClick={async () => {
+                                    try {
+                                      await updateComment(comment.id, editingCommentText);
+                                      setEditingCommentId(null);
+                                      fetchComments(post.id);
+                                    } catch (err) {
+                                      console.error('Error updating comment:', err);
+                                    }
+                                  }}
+                                >
+                                  Save
+                                </Button>
+                                <Button
+                                  variant="outline-secondary"
+                                  size="sm"
+                                  onClick={() => setEditingCommentId(null)}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mb-0 mt-1">{comment.content}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {currentUser && (
+                  <Form className="mt-3 d-flex" onSubmit={(e) => {
+                    e.preventDefault();
+                    handleCommentSubmit(post.id);
+                  }}>
+                    <Image 
+                      src={currentUser.photoURL || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                      roundedCircle 
+                      width={32} 
+                      height={32} 
+                      className="me-2"
+                    />
+                    <Form.Group className="flex-grow-1">
+                      <Form.Control
+                        as="textarea"
+                        rows={1}
+                        placeholder="Write a comment..."
+                        value={commentText[post.id] || ''}
+                        onChange={(e) => setCommentText(prev => ({
+                          ...prev,
+                          [post.id]: e.target.value
+                        }))}
+                        className="comment-input"
+                      />
+                    </Form.Group>
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      type="submit"
+                      className="ms-2 align-self-end"
+                      disabled={!commentText[post.id]?.trim()}
+                    >
+                      Post
+                    </Button>
+                  </Form>
+                )}
+              </div>
+            )}
+          </Card.Footer>
         </Card>
       ))}
 
@@ -254,6 +456,38 @@ const PostList = () => {
         post={selectedPost}
         refreshPosts={fetchPosts}
       />
+
+      {/* Likes Modal */}
+      <Modal show={showLikesModal} onHide={() => setShowLikesModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>People who liked this post</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {likedUsers.length > 0 ? (
+            <div className="list-group">
+              {likedUsers.map((user, index) => (
+                <div key={index} className="list-group-item border-0">
+                  <div className="d-flex align-items-center">
+                    <Image 
+                      src={user.avatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                      roundedCircle 
+                      width={40} 
+                      height={40} 
+                      className="me-3"
+                    />
+                    <span>{user.fullName || `User ${user.id}`}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-3">
+              <FaThumbsUp size={24} className="mb-2 text-muted" />
+              <p>No likes yet</p>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </Container>
   );
 };

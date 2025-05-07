@@ -1,6 +1,7 @@
 package com.edushare.backend.service;
 
 import com.edushare.backend.model.Comment;
+import com.edushare.backend.model.Post;
 import com.edushare.backend.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,9 @@ public class CommentService {
     public CommentService(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
-
+    @Autowired
+    private PostService postService;
+    
     // Create comment
     public Comment createComment(Comment comment) {
         comment.setCreatedAt(LocalDateTime.now());
@@ -56,4 +59,11 @@ public class CommentService {
     public void deleteComment(String id) {
         commentRepository.deleteById(id);
     }
+
+    public String findPostOwnerId(String postId) {
+    return postService.getPostById(postId)
+            .map(Post::getUserId)
+            .orElseThrow(() -> new RuntimeException("Post not found for ID: " + postId));
+}
+
 }

@@ -23,7 +23,7 @@ public class EventController {
     private EventService eventService;
 
     @Autowired
-    private com.edushare.backend.controller.EventModelAssembler eventModelAssembler;
+    private EventModelAssembler eventModelAssembler;
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody Map<String, Object> eventData) {

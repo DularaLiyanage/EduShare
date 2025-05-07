@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -47,13 +46,18 @@ private UserRepository userRepository;
     
             // ✅ Prevent notifying yourself
             if (!recipientId.equals(like.getUserId())) {
-                notificationService.createNotification(
-                    recipientId,                       // who receives it
-                    like.getUserId(),                  // who liked
-                    like.getPostId(),
-                    "LIKE",
-                    "User " + like.getUserId() + " liked your post"
-                );
+                String fullName = userRepository.findById(like.getUserId())
+    .map(user -> user.getFullName())
+    .orElse("Someone");
+
+notificationService.createNotification(
+    recipientId,
+    like.getUserId(),
+    like.getPostId(),
+    "LIKE",
+    fullName + " liked your post"
+);
+
             }
         }
     

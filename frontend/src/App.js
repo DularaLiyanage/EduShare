@@ -17,6 +17,12 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
 
+import AddLearningPlan from './components/LearningPlans/AddLearningPlan.jsx';
+import AllLearningPlan from './components/LearningPlans/AllLearningPlan.jsx';
+import MyLearningPlan from './components/LearningPlans/MyLearningPlan.jsx';
+import UpdateLearningPlan from './components/LearningPlans/UpdateLearningPlan.jsx';
+import './components/LearningPlans/plan.css';
+
 function App() {
   return (
     <Router>
@@ -48,6 +54,38 @@ function App() {
             element={
               <PrivateRoute>
                 <PostDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/addLearningPlan"
+            element={
+              <PrivateRoute>
+                <AddLearningPlan />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/allLearningPlan"
+            element={
+              <PrivateRoute>
+                <AllLearningPlan />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/myLearningPlan"
+            element={
+              <PrivateRoute>
+                <MyLearningPlan />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/updateLearningPlan/:id"
+            element={
+              <PrivateRoute>
+                <UpdateLearningPlan />
               </PrivateRoute>
             }
           />

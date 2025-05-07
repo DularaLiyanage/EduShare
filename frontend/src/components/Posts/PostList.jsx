@@ -221,25 +221,26 @@ const [likedUsers, setLikedUsers] = useState([]);
 
                       {isOwner && !isEditing && (
                         <div>
-                          <Button 
-                            variant="link" 
-                            size="sm" 
-                            className="text-primary"
-                            onClick={() => {
-                              setEditingCommentId(comment.id);
-                              setEditingCommentText(comment.content);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            variant="link" 
-                            size="sm" 
-                            className="text-danger"
-                            onClick={() => handleDeleteComment(comment.id, post.id)}
-                          >
-                            Delete
-                          </Button>
+                          <Button
+  variant="outline-primary"
+  size="sm"
+  className="me-2"
+  onClick={() => {
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.content);
+  }}
+>
+  ✏️ Edit
+</Button>
+
+<Button
+  variant="outline-danger"
+  size="sm"
+  onClick={() => handleDeleteComment(comment.id, post.id)}
+>
+  🗑️ Delete
+</Button>
+
                         </div>
                       )}
                     </div>

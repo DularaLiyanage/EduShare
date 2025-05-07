@@ -7,7 +7,7 @@ import PostList from './components/Posts/PostList.jsx';
 import PostForm from './components/Posts/PostForm.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext'; // ✅ also import useAuth here
 import AppNavbar from './components/layout/Navbar';
 import PrivateRoute from './components/layout/PrivateRoute';
 import Home from './pages/Home';
@@ -16,42 +16,62 @@ import Profile from './pages/Profile';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
+import NotificationsPanel from './components/Notifications/NotificationsPanel';
 
+// ✅ Create inner component to safely use useAuth()
+function AppContent() {
+  const { currentUser } = useAuth();
+
+  return (
+    <>
+      <AppNavbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/events" element={<EventList />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user/:userId"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/posts/:id"
+          element={
+            <PrivateRoute>
+              <PostDetail />
+            </PrivateRoute>
+          }
+        />
+        {/* ✅ Pass currentUser.id as recipientId */}
+        {currentUser && (
+          <Route
+            path="/notifications"
+            element={<NotificationsPanel recipientId={currentUser.id} />}
+          />
+        )}
+      </Routes>
+    </>
+  );
+}
+
+// ✅ Wrap AppContent inside AuthProvider
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppNavbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/events" element={<EventList />} />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/user/:userId"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/posts/:id"
-            element={
-              <PrivateRoute>
-                <PostDetail />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
+        <AppContent />
       </AuthProvider>
     </Router>
   );

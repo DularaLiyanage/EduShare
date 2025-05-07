@@ -2,6 +2,7 @@ package com.edushare.backend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Transient;
 
 import java.time.LocalDateTime;
 
@@ -70,4 +71,16 @@ public class Comment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Transient
+private String userFullName;
+
+public String getUserFullName() {
+    return userFullName;
+}
+
+public void setUserFullName(String userFullName) {
+    this.userFullName = userFullName;
+}
+
 }

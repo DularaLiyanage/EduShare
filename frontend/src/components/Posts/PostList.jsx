@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form } from 'react-bootstrap';
 import { getAllPosts, deletePost } from '../../Service/PostService';
-import { likePost, unlikePost, getLikeCount } from '../../Service/LikeService';
-import { getCommentsByPostId, createComment, deleteComment } from '../../Service/CommentService';
+import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser, getUsersWhoLikedPost  } from '../../Service/LikeService';
+import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
 import CreatePostModal from './CreatePostModal';
 import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
@@ -18,33 +18,52 @@ const PostList = () => {
   const [likeCounts, setLikeCounts] = useState({});
   const [userLikes, setUserLikes] = useState({});
   const { currentUser } = useAuth();
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [showLikesModal, setShowLikesModal] = useState(false);
+const [likedUsers, setLikedUsers] = useState([]);
+
+
 
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // outputs like "5/7/2025, 4:31:20 AM"
+  };
+  
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
       const data = await getAllPosts();
       setPosts(data);
-      
-      // Initialize like counts and user likes
+  
+      // Like counts
       const counts = {};
-      const likes = {};
       for (const post of data) {
         counts[post.id] = await getLikeCount(post.id);
-        likes[post.id] = false; // Will be updated in checkUserLikes
       }
       setLikeCounts(counts);
+  
+      // Liked post IDs for current user
+      const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
+      const likes = {};
+      for (const post of data) {
+        likes[post.id] = likedIds.includes(post.id);
+      }
       setUserLikes(likes);
-      
+  
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      console.error('Error fetching posts or likes:', err);
       setLoading(false);
     }
   };
+  
 
   const fetchComments = async (postId) => {
     try {
@@ -91,6 +110,17 @@ const PostList = () => {
     }
   };
 
+  const handleViewLikers = async (postId) => {
+    try {
+      const users = await getUsersWhoLikedPost(postId);
+      setLikedUsers(users);
+      setShowLikesModal(true);
+    } catch (err) {
+      console.error('Error loading liked users:', err);
+    }
+  };
+  
+
   const handleLike = async (postId) => {
     try {
       if (userLikes[postId]) {
@@ -106,6 +136,7 @@ const PostList = () => {
       console.error('Error toggling like:', err);
     }
   };
+  
 
   if (loading) {
     return <div className="text-center mt-5"><Spinner animation="border" /></div>;
@@ -143,16 +174,24 @@ const PostList = () => {
             
             {/* Like Button and Count */}
             <div className="d-flex align-items-center mt-3">
-              <Button 
-                variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
-                size="sm"
-                onClick={() => handleLike(post.id)}
-                className="me-2"
-              >
-                Like
-              </Button>
-              <span>{likeCounts[post.id] || 0} likes</span>
-            </div>
+  <Button 
+    variant={userLikes[post.id] ? 'primary' : 'outline-primary'} 
+    size="sm"
+    onClick={() => handleLike(post.id)}
+    className="me-2"
+  >
+    {userLikes[post.id] ? 'Liked' : 'Like'}
+  </Button>
+  <Button
+  variant="link"
+  className="p-0 text-decoration-none"
+  onClick={() => handleViewLikers(post.id)}
+>
+  {likeCounts[post.id] || 0} likes
+</Button>
+
+</div>
+
             
             {/* Comments Section */}
             <div className="mt-3">
@@ -167,25 +206,86 @@ const PostList = () => {
                 </Button>
               )}
               
-              {comments[post.id]?.map(comment => (
-                <div key={comment.id} className="mb-2 p-2 bg-light rounded">
-                  <div className="d-flex justify-content-between">
-                    <strong>{comment.userId}</strong>
-                    {currentUser?.id === comment.userId && (
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        className="text-danger"
-                        onClick={() => handleDeleteComment(comment.id, post.id)}
-                      >
-                        Delete
-                      </Button>
+              {comments[post.id]?.map(comment => {
+                const isOwner = currentUser?.id === comment.userId;
+                const isEditing = editingCommentId === comment.id;
+
+                return (
+                  <div key={comment.id} className="mb-2 p-2 bg-light rounded">
+                    <div className="d-flex justify-content-between">
+                    <div>
+  <strong>{comment.userFullName || comment.userId}</strong>
+  <small className="text-muted ms-2">{formatTimestamp(comment.createdAt)}</small>
+</div>
+
+
+                      {isOwner && !isEditing && (
+                        <div>
+                          <Button
+  variant="outline-primary"
+  size="sm"
+  className="me-2"
+  onClick={() => {
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.content);
+  }}
+>
+  ✏️ Edit
+</Button>
+
+<Button
+  variant="outline-danger"
+  size="sm"
+  onClick={() => handleDeleteComment(comment.id, post.id)}
+>
+  🗑️ Delete
+</Button>
+
+                        </div>
+                      )}
+                    </div>
+
+                    {isEditing ? (
+                      <>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          value={editingCommentText}
+                          onChange={(e) => setEditingCommentText(e.target.value)}
+                        />
+                        <div className="mt-1">
+                          <Button
+                            variant="success"
+                            size="sm"
+                            className="me-2"
+                            onClick={async () => {
+                              try {
+                                await updateComment(comment.id, editingCommentText);
+                                setEditingCommentId(null);
+                                fetchComments(post.id);
+                              } catch (err) {
+                                console.error('Error updating comment:', err);
+                              }
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setEditingCommentId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mb-0">{comment.content}</p>
                     )}
                   </div>
-                  <p className="mb-0">{comment.content}</p>
-                </div>
-              ))}
-              
+                );
+              })}
+
               {currentUser && (
                 <Form className="mt-2" onSubmit={(e) => {
                   e.preventDefault();
@@ -214,7 +314,7 @@ const PostList = () => {
                 </Form>
               )}
             </div>
-            
+
             {/* Edit/Delete Buttons (for post owner) */}
             {currentUser?.id === post.userId && (
               <div className="mt-3">
@@ -242,6 +342,7 @@ const PostList = () => {
         </Card>
       ))}
 
+      {/* Post Creation & Editing Modals */}
       <CreatePostModal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
@@ -254,6 +355,25 @@ const PostList = () => {
         post={selectedPost}
         refreshPosts={fetchPosts}
       />
+      <Modal show={showLikesModal} onHide={() => setShowLikesModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Users who liked this post</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {likedUsers.length > 0 ? (
+      <ul className="list-group">
+        {likedUsers.map((user, index) => (
+          <li key={index} className="list-group-item">
+            {user.fullName}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No likes yet.</p>
+    )}
+  </Modal.Body>
+</Modal>
+
     </Container>
   );
 };

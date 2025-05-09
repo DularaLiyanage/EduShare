@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Document(collection = "events")
 public class Event {
@@ -78,5 +79,10 @@ public class Event {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // Convert LocalDateTime to string in YYYY-MM-DD format
+    public String getFormattedDate() {
+        return date.format(DateTimeFormatter.ISO_LOCAL_DATE); // Returns date in YYYY-MM-DD format
     }
 }

@@ -489,6 +489,7 @@ const PostList = () => {
         </Modal.Body>
       </Modal>
     </Container>
+
   );
 };
 

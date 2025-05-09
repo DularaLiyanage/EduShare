@@ -2,9 +2,7 @@ import React, { useContext } from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaBell } from 'react-icons/fa';
-
-
+import { FaBell, FaCalendarAlt } from 'react-icons/fa'; // Added FaCalendarAlt icon
 
 const AppNavbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -18,8 +16,6 @@ const AppNavbar = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
       <Container>
-  
-
         <Navbar.Brand as={Link} to="/">EduShare</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -28,6 +24,10 @@ const AppNavbar = () => {
               <>
                 <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
                 <Nav.Link as={Link} to="/events">Events</Nav.Link>
+                {/* Added Calendar Link */}
+                <Nav.Link as={Link} to="/calendar">
+                  <FaCalendarAlt className="me-1" /> Calendar
+                </Nav.Link>
                 <Nav.Link as={Link} to={`/user/${currentUser.id}`}>My Profile</Nav.Link>
               </>
             )}
@@ -36,23 +36,21 @@ const AppNavbar = () => {
             {currentUser ? (
               <>
                 <Navbar.Text className="me-3 d-flex align-items-center">
-  Welcome, {currentUser.fullName}
-  <Link to="/notifications" className="ms-3 text-white">
-    <FaBell />
-  </Link>
-</Navbar.Text>
-
-
-      
-      <Button variant="outline-light" onClick={handleLogout}>
-        Logout
-      </Button>
-    </>
-  ) : (
-    <>
-      <Nav.Link as={Link} to="/login">Login</Nav.Link>
-      <Nav.Link as={Link} to="/register">Register</Nav.Link>
-    </>
+                  Welcome, {currentUser.fullName}
+                  <Link to="/notifications" className="ms-3 text-white">
+                    <FaBell />
+                  </Link>
+                </Navbar.Text>
+                
+                <Button variant="outline-light" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                <Nav.Link as={Link} to="/register">Register</Nav.Link>
+              </>
             )}
           </Nav>
         </Navbar.Collapse>

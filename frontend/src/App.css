@@ -165,3 +165,81 @@ body {
   }
 }
 
+/* Calendar styles */
+.event-calendar {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.calendar-container {
+  margin-bottom: 20px;
+}
+
+/* Style for days with events */
+.event-day {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 5px;
+  position: relative;
+}
+
+/* Event indicator dot */
+.event-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.event-dot {
+  height: 6px;
+  width: 6px;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* React Calendar overrides */
+.react-calendar {
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.react-calendar__tile {
+  padding: 12px 6px;
+  height: 60px;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: rgba(0, 123, 255, 0.2);
+  border-radius: 5px;
+}
+
+.react-calendar__tile--active {
+  background-color: #0d6efd !important;
+  color: white;
+  border-radius: 5px;
+}
+
+/* Loading and error styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.error-message {
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 5px;
+}
+
+/* Hover events panel */
+.hovered-events {
+  min-height: 60px;
+}

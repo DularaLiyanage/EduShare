@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       // Handle OAuth2 login success
       const userData = JSON.parse(atob(token.split('.')[1])); // Decode JWT token
       const user = {
-        id: userData.sub,
+        id: userData.userId || userData.sub, // Use userId if available, fallback to sub
         email: userData.email,
         fullName: userData.name
       };

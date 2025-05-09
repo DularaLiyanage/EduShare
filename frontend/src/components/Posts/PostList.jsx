@@ -9,7 +9,7 @@ import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
 import '../../App.css';
 import '../../index.css';
-import '../../css/Post.css'; // We'll create this CSS file
+import '../../css/Post.css';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -27,6 +27,7 @@ const PostList = () => {
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likedUsers, setLikedUsers] = useState([]);
   const [expandedComments, setExpandedComments] = useState({});
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     fetchPosts();
@@ -211,7 +212,9 @@ const PostList = () => {
                 className="me-3"
               />
               <div>
-                <h6 className="mb-0">{post.userFullName || `User ${post.userId}`}</h6>
+                <h6 className="mb-0">
+                  {post.userFullName || 'Anonymous User'}
+                </h6>
                 <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
               </div>
             </div>
@@ -247,28 +250,42 @@ const PostList = () => {
                 {post.mediaUrls.length === 1 ? (
                   <div className="single-media">
                     {post.mediaUrls[0].endsWith('.mp4') ? (
-                      <video controls className="w-100">
+                      <video controls>
                         <source src={post.mediaUrls[0]} type="video/mp4" />
                       </video>
                     ) : (
-                      <Image src={post.mediaUrls[0]} className="w-100" />
+                      <Image src={post.mediaUrls[0]} />
                     )}
                   </div>
                 ) : (
-                  <Row className="g-0">
-                    {post.mediaUrls.slice(0, 3).map((url, index) => (
-                      <Col key={index} xs={post.mediaUrls.length > 2 ? 6 : 12}>
-                        <div className="media-wrapper">
-                          <Image src={url} className="w-100 h-100" style={{ objectFit: 'cover' }} />
-                          {index === 2 && post.mediaUrls.length > 3 && (
-                            <div className="media-count-overlay">
-                              +{post.mediaUrls.length - 3}
-                            </div>
+                  <div className="media-carousel">
+                    <div className="media-carousel-item">
+                      <Image src={post.mediaUrls[currentImageIndex]} />
+                    </div>
+                    {post.mediaUrls.length > 1 && (
+                      <>
+                        <button 
+                          className="carousel-arrow prev"
+                          onClick={() => setCurrentImageIndex(prev => 
+                            prev === 0 ? post.mediaUrls.length - 1 : prev - 1
                           )}
+                        >
+                          ‹
+                        </button>
+                        <button 
+                          className="carousel-arrow next"
+                          onClick={() => setCurrentImageIndex(prev => 
+                            prev === post.mediaUrls.length - 1 ? 0 : prev + 1
+                          )}
+                        >
+                          ›
+                        </button>
+                        <div className="image-counter">
+                          {currentImageIndex + 1}/{post.mediaUrls.length}
                         </div>
-                      </Col>
-                    ))}
-                  </Row>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}

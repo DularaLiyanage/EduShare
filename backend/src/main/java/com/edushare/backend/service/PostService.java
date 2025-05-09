@@ -3,6 +3,7 @@ package com.edushare.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.edushare.backend.repository.PostRepository;
+import com.edushare.backend.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +15,12 @@ import com.edushare.backend.model.Post;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     public Post createPost(Post post) {
@@ -25,7 +28,15 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        List<Post> posts = postRepository.findAll();
+        posts.forEach(post -> {
+            userRepository.findById(post.getUserId())
+                .ifPresent(user -> {
+                    post.setUserFullName(user.getFullName());
+                    post.setUserAvatar(user.getAvatarUrl());
+                });
+        });
+        return posts;
     }
 
     public Optional<Post> getPostById(String id) {

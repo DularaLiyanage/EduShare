@@ -38,6 +38,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(oAuth2User.getAttribute("email"))
                 .claim("name", oAuth2User.getAttribute("name"))
+                .claim("userId", oAuth2User.getAttribute("sub"))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey())

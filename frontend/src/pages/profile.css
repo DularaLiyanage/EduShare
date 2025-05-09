@@ -1,79 +1,84 @@
 /* Profile container */
 .profile-container {
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-/* Title styling */
-.profile-container h1 {
-  font-size: 2.5rem;
-  color: #333;
+/* Profile header */
+.profile-header {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-avatar {
+  border: 3px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+.profile-info {
+  padding: 20px 0;
+}
+
+.profile-info h2 {
+  margin-bottom: 5px;
   font-weight: 600;
-  text-align: center;
-  margin-bottom: 20px;
 }
 
-/* Greeting styling */
-.profile-container h3 {
-  font-size: 1.75rem;
-  color: #2e3d49;
-  margin-bottom: 10px;
+.profile-stats {
+  font-size: 1.1rem;
 }
 
-/* Email styling */
-.profile-container p {
-  font-size: 1rem;
-  color: #555;
-  font-weight: 500;
-  margin-bottom: 20px;
-}
-
-/* Post section title */
-.profile-container h4 {
-  font-size: 1.5rem;
+.profile-stats strong {
+  font-weight: 600;
   color: #333;
-  margin-bottom: 15px;
+}
+
+/* Tab styling */
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #666;
   font-weight: 500;
+  padding: 10px 20px;
 }
 
-/* Add some padding to the user post section */
+.nav-tabs .nav-link.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+  background: none;
+}
+
+/* Posts section */
 .user-posts-section {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
 }
 
-/* Alert styling */
-.alert-info {
-  background-color: #e1f5fe;
-  color: #01579b;
-  border-radius: 5px;
+/* Activities section */
+.activities-section {
+  padding: 20px 0;
 }
 
-.alert-danger {
-  background-color: #ffcccc;
-  color: #d32f2f;
-  border-radius: 5px;
-}
-
-/* Responsive styling for smaller screens */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .profile-container h1 {
-    font-size: 2rem;
+  .profile-header {
+    text-align: center;
   }
 
-  .profile-container h3 {
-    font-size: 1.5rem;
+  .profile-info {
+    padding: 20px;
   }
 
-  .profile-container p {
-    font-size: 0.9rem;
+  .profile-stats {
+    justify-content: center;
   }
 
-  .profile-container h4 {
-    font-size: 1.25rem;
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
   }
 }

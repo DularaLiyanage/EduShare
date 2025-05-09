@@ -18,6 +18,8 @@ public class Post {
     private List<String> mediaUrls;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String userFullName;
+    private String userAvatar;
 
     // Constructor
     public Post() {
@@ -72,5 +74,21 @@ public class Post {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getUserFullName() {
+        return userFullName;
+    }
+
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+    }
+
+    public String getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        this.userAvatar = userAvatar;
     }
 }

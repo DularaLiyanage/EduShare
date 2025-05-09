@@ -10,6 +10,7 @@ public class UserModel {
     private String fullName;
     private String email;
     private String password;
+    private String avatarUrl;
 
     // Getters and Setters
     public String getId() {
@@ -42,5 +43,13 @@ public class UserModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

@@ -1,68 +1,137 @@
-
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button, Alert, Spinner, ListGroup } from 'react-bootstrap';
-
-
+import { Container, Row, Col, Card, Nav, Tab, Image, Button, Alert, Spinner } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import UserPosts from '../components/Posts/UserPosts'; // Ensure UserPosts is imported
-import './profile.css';  // Import the Profile CSS file
+import UserPosts from '../components/Posts/UserPosts';
+import { getUserProfile } from '../Service/UserService';
+import './profile.css';
 
 const Profile = () => {
   const { userId } = useParams();
   const { currentUser } = useAuth();
-  const [email, setEmail] = useState(currentUser ? currentUser.email : '');  // Set the initial email from currentUser if available
-  const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userProfile, setUserProfile] = useState(null);
+  const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
-    if (!currentUser) {
-      setError('You must be logged in to view your profile.');
-    }
-  }, [currentUser]);
+    const fetchUserProfile = async () => {
+      if (!userId) {
+        setError('User ID is required');
+        setLoading(false);
+        return;
+      }
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
+      try {
+        setLoading(true);
+        const profileData = await getUserProfile(userId);
+        setUserProfile({
+          ...profileData,
+          postsCount: 0, // This would come from the backend
+          followersCount: 0,
+          followingCount: 0
+        });
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
 
-  const fetchRegisteredEvents = async () => {
-    if (!email) {
-      setError('Please provide an email address.');
-      return;
-    }
+    fetchUserProfile();
+  }, [userId]);
 
-    setLoading(true);
-    setError('');
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
 
-    try {
-      const response = await axios.get(`http://localhost:8080/api/users/${email}/events`);
-      setRegisteredEvents(response.data);
-    } catch (err) {
-      setError('Error fetching registered events. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (error) {
+    return (
+      <Container className="mt-4">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container className="profile-container mt-4">
-      <h1>User Profile</h1>
-      {currentUser ? (
-        <>
-          <h3>Hi, {currentUser.fullName}!</h3>
-          <p><strong>Email:</strong> {currentUser.email}</p>
+      {/* Profile Header */}
+      <Card className="profile-header mb-4">
+        <Card.Body>
+          <Row>
+            <Col md={3} className="text-center">
+              <Image
+                src={userProfile?.avatarUrl || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'}
+                roundedCircle
+                className="profile-avatar"
+                width={150}
+                height={150}
+              />
+            </Col>
+            <Col md={9}>
+              <div className="profile-info">
+                <h2>{userProfile?.fullName || 'User'}</h2>
+                <p className="text-muted">{userProfile?.email}</p>
+                
+                <div className="profile-stats mb-3">
+                  <span className="me-4">
+                    <strong>{userProfile?.postsCount || 0}</strong> posts
+                  </span>
+                  <span className="me-4">
+                    <strong>{userProfile?.followersCount || 0}</strong> followers
+                  </span>
+                  <span>
+                    <strong>{userProfile?.followingCount || 0}</strong> following
+                  </span>
+                </div>
 
-          {/* Displaying the user's posts below */}
-          <h4>My Posts</h4>
-          <div className="user-posts-section">
-            <UserPosts userId={currentUser.id} />
-          </div>
-        </>
-      ) : (
-        <Alert variant="info">{error || 'Please log in to view your profile.'}</Alert>
-      )}
+                {currentUser?.id === userId && (
+                  <Button variant="outline-primary" size="sm">
+                    Edit Profile
+                  </Button>
+                )}
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* Profile Content */}
+      <Card>
+        <Card.Body>
+          <Tab.Container activeKey={activeTab} onSelect={setActiveTab}>
+            <Nav variant="tabs" className="mb-3">
+              <Nav.Item>
+                <Nav.Link eventKey="posts">Posts</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="activities">Activities</Nav.Link>
+              </Nav.Item>
+            </Nav>
+
+            <Tab.Content>
+              <Tab.Pane eventKey="posts">
+                <div className="user-posts-section">
+                  <UserPosts userId={userId} />
+                </div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="activities">
+                <div className="activities-section">
+                  <Alert variant="info">
+                    Activities feature coming soon!
+                  </Alert>
+                </div>
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };

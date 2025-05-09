@@ -1,10 +1,12 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import EventList from './components/Events/EventList.jsx';
+import EventCalendar from './components/Events/EventCalendar';
+import EventDetail from './components/Events/EventDetail'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { AuthProvider, useAuth } from './context/AuthContext'; // ✅ also import useAuth here
-import AppNavbar from './components/layout/Navbar'; // Header component
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AppNavbar from './components/layout/Navbar';
 import PrivateRoute from './components/layout/PrivateRoute';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -14,7 +16,7 @@ import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
 import NotificationsPanel from './components/Notifications/NotificationsPanel';
 
-// ✅ Create inner component to safely use useAuth()
+// Create inner component to safely use useAuth()
 function AppContent() {
   const { currentUser } = useAuth();
 
@@ -24,7 +26,12 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* Event Routes */}
         <Route path="/events" element={<EventList />} />
+        <Route path="/events/:eventId" element={<EventDetail />} />
+        <Route path="/calendar" element={<EventCalendar />} />
+        
         <Route
           path="/dashboard"
           element={
@@ -49,7 +56,8 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-        {/* ✅ Pass currentUser.id as recipientId */}
+        
+        {/* Pass currentUser.id as recipientId */}
         {currentUser && (
           <Route
             path="/notifications"
@@ -61,14 +69,14 @@ function AppContent() {
   );
 }
 
-// ✅ Wrap AppContent inside AuthProvider
+// Wrap AppContent inside AuthProvider
 function App() {
   return (
     <Router>
       <AuthProvider>
         <div className="app-container">
           {/* Fixed Navigation Bar */}
-          <AppNavbar /> {/* Render AppNavbar only here once */}
+          <AppNavbar />
           
           {/* Scrollable Content Area */}
           <div className="content-area">

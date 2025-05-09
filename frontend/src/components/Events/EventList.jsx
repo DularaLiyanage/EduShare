@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import EventCard from './EventCard';
 import EventForm from './EventForm';
 import EventDetail from './EventDetail';
-import RegisterAttendeeForm from './AttendeeForm'; // Make sure this import is present
+import RegisterAttendeeForm from './AttendeeForm'; 
 import axios from 'axios';
-import '../../index.css';  // Default styles
+import { useNavigate } from 'react-router-dom';
+import '../../index.css';  
 import '../../App.css';
 
 const EventList = () => {
@@ -14,9 +15,10 @@ const EventList = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [eventId, setEventId] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
-  const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false); // Added state for attendee modal
+  const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
 
   const API_URL = 'http://localhost:8080/api/events';
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
@@ -66,12 +68,14 @@ const EventList = () => {
     }
   };
 
-  const handleViewEvent = (id) => {
-    setEventId(id);
+  // Handle navigating to event detail
+  const handleViewEvent = (eventId) => {
+    setEventId(eventId);
     setShowDetail(true);
+    navigate(`/events/${eventId}`);  // Use navigate to redirect to event detail page
   };
 
-  const handleAddAttendee = (id) => { // Added function to show attendee modal
+  const handleAddAttendee = (id) => { 
     setEventId(id);
     setShowAddAttendeeModal(true);
   };
@@ -86,15 +90,15 @@ const EventList = () => {
         </Row>
         <Row>
           {events.length > 0 ? (
-            events.map((event,index) => (
+            events.map((event, index) => (
               <Col key={event.id} sm={12} className="mb-2">
                 <EventCard
                   event={event}
                   index={index}
                   handleEdit={handleEditEvent}
                   handleDelete={handleDeleteEvent}
-                  handleView={handleViewEvent}
-                  handleAddAttendee={handleAddAttendee} // Pass the handler to the EventCard
+                  handleView={handleViewEvent}  // Pass the handler to the EventCard
+                  handleAddAttendee={handleAddAttendee}
                 />
               </Col>
             ))
@@ -117,7 +121,7 @@ const EventList = () => {
         />
         <RegisterAttendeeForm
           show={showAddAttendeeModal}
-          handleClose={() => setShowAddAttendeeModal(false)} // Handle closing the modal
+          handleClose={() => setShowAddAttendeeModal(false)}
           eventId={eventId}
         />
       </Container>

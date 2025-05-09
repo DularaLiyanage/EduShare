@@ -1,0 +1,563 @@
+/* Global Styles */
+:root {
+    --primary-color: #4361ee;
+    --primary-dark: #3a56d4;
+    --secondary-color: #3f37c9;
+    --text-color: #2b2d42;
+    --light-text: #8d99ae;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+    --success-color: #4bb543;
+    --error-color: #ff3333;
+    --font-main: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-color);
+    line-height: 1.6;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Layout Styles */
+.add-learning-plan {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    border-radius: 12px;
+    backdrop-filter: blur(5px); /* Glassmorphism effect */
+}
+
+/* Form Container */
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.form-container {
+    max-width: 600px;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(5px);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.form-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.plan-form input,
+.plan-form select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.plan-form input:focus,
+.plan-form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.plan-form button {
+    padding: 0.75rem 2rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.plan-form button:hover {
+    background-color: var(--primary-dark);
+}
+
+.plan-form button:disabled {
+    background-color: var(--light-text);
+    cursor: not-allowed;
+}
+
+
+/* Plan List Container */
+.plan-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+}
+
+/* Plan Card */
+.plan-card {
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.plan-card h3 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.plan-card p {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.plan-card a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.plan-card a:hover {
+    text-decoration: underline;
+}
+
+/* Status Tag */
+.status-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    margin-bottom: 10px;
+}
+
+.status-complete {
+    background-color: rgba(75, 181, 67, 0.1);
+    color: var(--success-color);
+}
+
+.status-doing {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        max-width: 90%;
+    }
+    .plan-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Global Styling */
+.learning-plan {
+  padding: 20px;
+  
+}
+
+.plan-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.plan-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+}
+
+.plan-card-header {
+  padding: 15px;
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+.plan-title {
+  margin-bottom: 5px;
+  color: #4361ee;
+  font-size: 1.2rem;
+}
+
+.plan-owner {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.view-project {
+  color: #4361ee;
+  font-weight: bold;
+  text-decoration: none;
+  float: right;
+  font-size: 0.9rem;
+}
+
+.view-project:hover {
+  text-decoration: underline;
+}
+
+.plan-details {
+  padding: 15px;
+  font-size: 0.9rem;
+}
+
+.plan-details span {
+  font-weight: 600;
+  color: #343a40;
+}
+
+ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.skills-container {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.skill-tag {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.status-tag.doing {
+  background-color: #ffc107;
+}
+
+.status-tag.complete {
+  background-color: #28a745;
+}
+
+.progress-container {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plan-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+}
+
+.plan-card-header {
+  padding: 15px;
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+.plan-title {
+  margin-bottom: 5px;
+  color: #4361ee;
+  font-size: 1.2rem;
+}
+
+.plan-owner {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.plan-details {
+  padding: 15px;
+  font-size: 0.9rem;
+}
+
+.skills-container {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.skill-tag {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.plan-card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-edit {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background-color: rgba(255, 51, 51, 0.1);
+  color: #ff3333;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.progress-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.progress-bar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary-color) calc(var(--progress) * 1%),
+    #f0f0f0 0
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-text {
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Global Styles */
+:root {
+    --primary-color: #4361ee;
+    --primary-dark: #3a56d4;
+    --secondary-color: #3f37c9;
+    --text-color: #2b2d42;
+    --light-text: #8d99ae;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+    --success-color: #4bb543;
+    --error-color: #ff3333;
+    --font-main: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-color);
+    line-height: 1.6;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Layout Styles */
+.update-learning-plan {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+/* Form Container */
+.form-container {
+    max-width: 600px;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(5px);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.form-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.plan-form input,
+.plan-form select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.plan-form input:focus,
+.plan-form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.plan-form button {
+    padding: 0.75rem 2rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+.plan-form button:hover {
+    background-color: var(--primary-dark);
+}
+
+.plan-form button:disabled {
+    background-color: var(--light-text);
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        max-width: 100%;
+    }
+}

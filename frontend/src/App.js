@@ -22,6 +22,11 @@ import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
 import NotificationsPanel from './components/Notifications/NotificationsPanel';
 
+import AddLearningPlan from './components/LearningPlans/AddLearningPlan';
+import AllLearningPlan from './components/LearningPlans/AllLearningPlan';
+import MyLearningPlan from './components/LearningPlans/MyLearningPlan';
+import UpdateLearningPlan from './components/LearningPlans/UpdateLearningPlan';
+
 
 // Create inner component to safely use useAuth()
 function AppContent() {
@@ -38,7 +43,7 @@ function AppContent() {
         <Route path="/events" element={<EventList />} />
         <Route path="/events/:eventId" element={<EventDetail />} />
         <Route path="/calendar" element={<EventCalendar />} />
-        
+          
         <Route
           path="/dashboard"
           element={
@@ -60,6 +65,40 @@ function AppContent() {
           element={
             <PrivateRoute>
               <PostDetail />
+            </PrivateRoute>
+          }
+        />
+            
+        {/* ➡️ Learning Plan Routes */}
+        <Route
+          path="/allLearningPlan"
+          element={
+            <PrivateRoute>
+              <AllLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/addLearningPlan"
+          element={
+            <PrivateRoute>
+              <AddLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/myLearningPlan"
+          element={
+            <PrivateRoute>
+              <MyLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/updateLearningPlan/:id"
+          element={
+            <PrivateRoute>
+              <UpdateLearningPlan />
             </PrivateRoute>
           }
         />

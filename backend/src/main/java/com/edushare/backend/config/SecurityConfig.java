@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/oauth2/**",
                                 "/api/posts/**",
-                                "/api/learningPlan/**",
+                                "/learningPlan/**",
                                 "/api/events/**",
                                 "/api/likes/**",
                                 "/api/notifications/**",

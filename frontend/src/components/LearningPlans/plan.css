@@ -1,0 +1,25 @@
+.add-learning-plan, .my-learning-plans, .learning-plan-list {
+  padding: 20px;
+}
+
+.plan-item {
+  background: #f0f0f0;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+form input, form select {
+  margin: 5px;
+  padding: 8px;
+  width: 100%;
+}
+
+form button {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #4361ee;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}

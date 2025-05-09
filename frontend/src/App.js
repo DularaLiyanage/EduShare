@@ -8,7 +8,7 @@ import PostForm from './components/Posts/PostForm.jsx';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { AuthProvider, useAuth } from './context/AuthContext'; // ✅ also import useAuth here
+import { AuthProvider, useAuth } from './context/AuthContext'; // also import useAuth here
 import AppNavbar from './components/layout/Navbar'; // Header component
 import PrivateRoute from './components/layout/PrivateRoute';
 import Home from './pages/Home';
@@ -19,7 +19,13 @@ import Register from './components/auth/Register';
 import PostDetail from './components/Posts/PostDetail';
 import NotificationsPanel from './components/Notifications/NotificationsPanel';
 
-// ✅ Create inner component to safely use useAuth()
+//Import Learning Plan Components
+import AddLearningPlan from './components/LearningPlans/AddLearningPlan';
+import AllLearningPlan from './components/LearningPlans/AllLearningPlan';
+import MyLearningPlan from './components/LearningPlans/MyLearningPlan';
+import UpdateLearningPlan from './components/LearningPlans/UpdateLearningPlan';
+
+//Create inner component to safely use useAuth()
 function AppContent() {
   const { currentUser } = useAuth();
 
@@ -30,6 +36,41 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/events" element={<EventList />} />
+        
+        {/* ➡️ Learning Plan Routes */}
+        <Route
+          path="/allLearningPlan"
+          element={
+            <PrivateRoute>
+              <AllLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/addLearningPlan"
+          element={
+            <PrivateRoute>
+              <AddLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/myLearningPlan"
+          element={
+            <PrivateRoute>
+              <MyLearningPlan />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/updateLearningPlan/:id"
+          element={
+            <PrivateRoute>
+              <UpdateLearningPlan />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/dashboard"
           element={
@@ -54,7 +95,7 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-        {/* ✅ Pass currentUser.id as recipientId */}
+
         {currentUser && (
           <Route
             path="/notifications"

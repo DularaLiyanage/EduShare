@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import EventCard from './EventCard';
 import EventForm from './EventForm';
 import EventDetail from './EventDetail';
-import RegisterAttendeeForm from './AttendeeForm';
+import RegisterAttendeeForm from './AttendeeForm'; 
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import '../../index.css';  
+import '../../App.css';
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -15,6 +18,7 @@ const EventList = () => {
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
 
   const API_URL = 'http://localhost:8080/api/events';
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
@@ -64,60 +68,64 @@ const EventList = () => {
     }
   };
 
-  const handleViewEvent = (id) => {
-    setEventId(id);
+  // Handle navigating to event detail
+  const handleViewEvent = (eventId) => {
+    setEventId(eventId);
     setShowDetail(true);
+    navigate(`/events/${eventId}`);  // Use navigate to redirect to event detail page
   };
 
-  const handleAddAttendee = (id) => {
+  const handleAddAttendee = (id) => { 
     setEventId(id);
     setShowAddAttendeeModal(true);
   };
 
   return (
-    <Container>
-      <Row className="d-flex justify-content-end mb-3">
-        <Col xs="auto">
-          <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
-        </Col>
-      </Row>
-      <Row>
-        {events.length > 0 ? (
-          events.map((event,index) => (
-            <Col key={event.id} sm={12} className="mb-2">
-              <EventCard
-                event={event}
-                index={index}
-                handleEdit={handleEditEvent}
-                handleDelete={handleDeleteEvent}
-                handleView={handleViewEvent}
-                handleAddAttendee={handleAddAttendee}
-              />
-            </Col>
-          ))
-        ) : (
-          <Col sm={12}>
-            <p>No events available. Please add some events.</p>
+    <div className="content-container">
+      <Container>
+        <Row className="d-flex justify-content-end mb-3">
+          <Col xs="auto">
+            <Button variant="primary" onClick={handleAddEvent}>Add New Event</Button>
           </Col>
-        )}
-      </Row>
-      <EventForm
-        show={showForm}
-        handleClose={() => setShowForm(false)}
-        handleSubmit={handleFormSubmit}
-        event={currentEvent}
-      />
-      <EventDetail
-        show={showDetail}
-        handleClose={() => setShowDetail(false)}
-        eventId={eventId}
-      />
-      <RegisterAttendeeForm
-        show={showAddAttendeeModal}
-        handleClose={() => setShowAddAttendeeModal(false)}
-        eventId={eventId}
-      />
-    </Container>
+        </Row>
+        <Row>
+          {events.length > 0 ? (
+            events.map((event, index) => (
+              <Col key={event.id} sm={12} className="mb-2">
+                <EventCard
+                  event={event}
+                  index={index}
+                  handleEdit={handleEditEvent}
+                  handleDelete={handleDeleteEvent}
+                  handleView={handleViewEvent}  // Pass the handler to the EventCard
+                  handleAddAttendee={handleAddAttendee}
+                />
+              </Col>
+            ))
+          ) : (
+            <Col sm={12}>
+              <p>No events available. Please add some events.</p>
+            </Col>
+          )}
+        </Row>
+        <EventForm
+          show={showForm}
+          handleClose={() => setShowForm(false)}
+          handleSubmit={handleFormSubmit}
+          event={currentEvent}
+        />
+        <EventDetail
+          show={showDetail}
+          handleClose={() => setShowDetail(false)}
+          eventId={eventId}
+        />
+        <RegisterAttendeeForm
+          show={showAddAttendeeModal}
+          handleClose={() => setShowAddAttendeeModal(false)}
+          eventId={eventId}
+        />
+      </Container>
+    </div>
   );
 };
 

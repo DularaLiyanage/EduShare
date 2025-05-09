@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Alert, Spinner, ListGroup } from 'react-bootstrap';
 
-// Profile.jsx
-import React from 'react';
 
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

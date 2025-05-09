@@ -27,7 +27,6 @@ const Profile = () => {
         const profileData = await getUserProfile(userId);
         setUserProfile({
           ...profileData,
-          postsCount: 0, // This would come from the backend
           followersCount: 0,
           followingCount: 0
         });
@@ -80,9 +79,6 @@ const Profile = () => {
                 <p className="text-muted">{userProfile?.email}</p>
                 
                 <div className="profile-stats mb-3">
-                  <span className="me-4">
-                    <strong>{userProfile?.postsCount || 0}</strong> posts
-                  </span>
                   <span className="me-4">
                     <strong>{userProfile?.followersCount || 0}</strong> followers
                   </span>

@@ -1,36 +1,26 @@
-import axios from "axios";
+import axios from 'axios';
 
-const API_URL = "http://localhost:8080/learningPlan";
+const BASE_URL = 'http://localhost:8080/learningPlan';
 
 class LearningPlanService {
-  // Create Learning Plan
-  createLearningPlan(data) {
-    return axios.post(API_URL, data);
-  }
-
-  // Get All Learning Plans
   getAllLearningPlans() {
-    return axios.get(API_URL);
+    return axios.get(`${BASE_URL}`);
   }
 
-  // Get Learning Plans by User ID
-  getLearningPlansByUserId(userID) {
-    return axios.get(`${API_URL}/user/${userID}`);
+  getLearningPlansByUser(userID) {
+    return axios.get(`${BASE_URL}?userID=${userID}`);
   }
 
-  // Get Learning Plan by ID
-  getLearningPlanById(id) {
-    return axios.get(`${API_URL}/${id}`);
+  addLearningPlan(plan) {
+    return axios.post(`${BASE_URL}`, plan);
   }
 
-  // Update Learning Plan
-  updateLearningPlan(id, data) {
-    return axios.put(`${API_URL}/${id}`, data);
+  updateLearningPlan(id, plan) {
+    return axios.put(`${BASE_URL}/${id}`, plan);
   }
 
-  // Delete Learning Plan
   deleteLearningPlan(id) {
-    return axios.delete(`${API_URL}/${id}`);
+    return axios.delete(`${BASE_URL}/${id}`);
   }
 }
 

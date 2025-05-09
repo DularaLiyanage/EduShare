@@ -25,7 +25,7 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/api/user/**",
                                 "/api/posts/**",
-                                "/api/learningPlan/**",
+                                "/learningPlan/**",
                                 "/api/events/**",
                                 "/api/likes/**",
                                 "/api/notifications/**",

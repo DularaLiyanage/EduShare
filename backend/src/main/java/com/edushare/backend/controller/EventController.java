@@ -10,8 +10,9 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
+
+
 import java.util.*;
 
 @RestController
@@ -23,7 +24,7 @@ public class EventController {
     private EventService eventService;
 
     @Autowired
-    private EventModelAssembler eventModelAssembler;  // Use this correct declaration
+    private EventModelAssembler eventModelAssembler;
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody Map<String, Object> eventData) {
@@ -33,11 +34,9 @@ public class EventController {
             event.setDescription((String) eventData.get("description"));
             event.setLocation((String) eventData.get("location"));
 
-            // Handle date conversion
             String dateStr = (String) eventData.get("date");
             if (dateStr != null && !dateStr.isEmpty()) {
-                LocalDateTime dateTime = LocalDateTime.parse(dateStr);
-                event.setDate(dateTime);
+                event.setDate(LocalDateTime.parse(dateStr)); // Parse the date string
             }
 
             Event savedEvent = eventService.createEvent(event);
@@ -78,11 +77,9 @@ public class EventController {
         }
     }
 
-    // PUT method for updating an event
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable String id, @RequestBody Map<String, Object> eventData) {
         try {
-            // Find existing event
             Optional<Event> existingEvent = eventService.getEventById(id);
             if (!existingEvent.isPresent()) {
                 Map<String, String> response = new HashMap<>();
@@ -90,7 +87,6 @@ public class EventController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            // Update event details
             Event event = existingEvent.get();
             event.setName((String) eventData.get("name"));
             event.setDescription((String) eventData.get("description"));
@@ -98,8 +94,7 @@ public class EventController {
 
             String dateStr = (String) eventData.get("date");
             if (dateStr != null && !dateStr.isEmpty()) {
-                LocalDateTime dateTime = LocalDateTime.parse(dateStr);
-                event.setDate(dateTime);
+                event.setDate(LocalDateTime.parse(dateStr));
             }
 
             Event updatedEvent = eventService.updateEvent(id, event);
@@ -114,7 +109,6 @@ public class EventController {
         }
     }
 
-    // DELETE method for deleting an event
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable String id) {
         try {

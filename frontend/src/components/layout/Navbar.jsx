@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaBell } from 'react-icons/fa';
+import { FaBell, FaCalendarAlt } from 'react-icons/fa'; // Added FaCalendarAlt icon
 
 const AppNavbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -24,6 +24,10 @@ const AppNavbar = () => {
               <>
                 <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
                 <Nav.Link as={Link} to="/events">Events</Nav.Link>
+                {/* Added Calendar Link */}
+                <Nav.Link as={Link} to="/calendar">
+                  <FaCalendarAlt className="me-1" /> Calendar
+                </Nav.Link>
                 <Nav.Link as={Link} to={`/user/${currentUser.id}`}>My Profile</Nav.Link>
 
                 {/* 🔥 Learning Plan Dropdown */}

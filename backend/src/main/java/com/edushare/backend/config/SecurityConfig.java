@@ -1,5 +1,6 @@
 package com.edushare.backend.config;
 
+import com.edushare.backend.security.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,11 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+    }
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -23,7 +29,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/user/**",
                                 "/oauth2/**",
-                                "/api/user/**",
                                 "/api/posts/**",
                                 "/learningPlan/**",
                                 "/api/events/**",
@@ -33,7 +38,10 @@ public class SecurityConfig {
                                 "/api/attendees/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-                ); // Fixed missing semicolon
+                )
+                .oauth2Login()
+                    .successHandler(oAuth2LoginSuccessHandler)
+                    .and();
         return http.build();
     }
 
@@ -44,6 +52,7 @@ public class SecurityConfig {
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedMethod("*"); 
         config.addAllowedHeader("*"); 
+        config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

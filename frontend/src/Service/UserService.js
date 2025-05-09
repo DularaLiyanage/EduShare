@@ -19,3 +19,12 @@ export const loginUser = async (email, password) => {
     throw new Error(error.response?.data?.error || 'Login failed');
   }
 };
+
+export const verifyOAuth2Token = async (token) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/oauth2/verify`, { token });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Token verification failed');
+  }
+};

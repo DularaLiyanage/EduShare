@@ -31,6 +31,11 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    // Redirect to backend OAuth2 endpoint
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  };
+
   return (
     <div className="login-page">
       <Card className="login-card shadow-sm">
@@ -68,6 +73,22 @@ const Login = () => {
               )}
             </Button>
           </Form>
+          
+          <div className="text-center mt-3">
+            <p className="text-muted">- OR -</p>
+            <Button
+              variant="outline-primary"
+              className="w-100"
+              onClick={handleGoogleLogin}
+            >
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                style={{ width: '20px', marginRight: '10px' }}
+              />
+              Continue with Google
+            </Button>
+          </div>
         </Card.Body>
       </Card>
     </div>

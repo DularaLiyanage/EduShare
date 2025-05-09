@@ -50,7 +50,6 @@ body {
 
 /* Button Styling */
 .post-card button {
-  background-color: var(--primary);
   border: none;
   padding: 10px 15px;
   font-size: 14px;
@@ -61,7 +60,7 @@ body {
 }
 
 .post-card button:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--grey);
 }
 
 /* Post Modal Improvements */

@@ -117,13 +117,22 @@ public ResponseEntity<CollectionModel<EntityModel<Comment>>> getCommentsByPostId
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<CollectionModel<EntityModel<Comment>>> getCommentsByUserId(@PathVariable String userId) {
-        List<EntityModel<Comment>> comments = commentService.getCommentsByUserId(userId)
+        List<Comment> comments = commentService.getCommentsByUserId(userId);
+        
+        // Inject user full names into comments
+        for (Comment comment : comments) {
+            userRepository.findById(comment.getUserId()).ifPresent(user ->
+                comment.setUserFullName(user.getFullName())
+            );
+        }
+
+        List<EntityModel<Comment>> commentModels = comments
                 .stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(
-                CollectionModel.of(comments,
+                CollectionModel.of(commentModels,
                         linkTo(methodOn(CommentController.class).getCommentsByUserId(userId)).withSelfRel()));
     }
 

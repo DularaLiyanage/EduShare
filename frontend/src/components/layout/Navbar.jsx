@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { Navbar, Nav, Container, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaBell, FaCalendarAlt } from 'react-icons/fa'; // Added FaCalendarAlt icon
+import { FaBell, FaCalendarAlt } from 'react-icons/fa';
 
 const AppNavbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -28,10 +28,25 @@ const AppNavbar = () => {
                 <Nav.Link as={Link} to="/calendar">
                   <FaCalendarAlt className="me-1" /> Calendar
                 </Nav.Link>
+
+                {/* 🔥 Learning Plan Dropdown */}
+                <NavDropdown title="Learning Plans" id="learningPlans-dropdown">
+                  <NavDropdown.Item as={Link} to="/allLearningPlan">
+                    All Learning Plans
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/addLearningPlan">
+                    Add Learning Plan
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/myLearningPlan">
+                    My Learning Plans
+                  </NavDropdown.Item>
+                </NavDropdown>
+
                 <Nav.Link as={Link} to={`/user/${currentUser.id}`}>My Profile</Nav.Link>
               </>
             )}
           </Nav>
+
           <Nav>
             {currentUser ? (
               <>
@@ -41,7 +56,7 @@ const AppNavbar = () => {
                     <FaBell />
                   </Link>
                 </Navbar.Text>
-                
+
                 <Button variant="outline-light" onClick={handleLogout}>
                   Logout
                 </Button>

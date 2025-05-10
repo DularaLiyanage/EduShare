@@ -30,9 +30,6 @@ public class FileUploadService {
     private final List<String> allowedImageTypes = Arrays.asList("image/jpeg", "image/png", "image/gif");
     private final List<String> allowedVideoTypes = Arrays.asList("video/mp4", "video/quicktime", "video/x-msvideo");
     
-    // Maximum video duration in seconds
-    //private final int MAX_VIDEO_DURATION = 30;
-    
     // Maximum number of files per post
     private final int MAX_FILES_PER_POST = 3;
 
@@ -112,6 +109,7 @@ public class FileUploadService {
     
     /**
      * Validate a file's type and size
+     * Note: Video duration validation is now handled on the frontend
      */
     private void validateFile(MultipartFile file) throws Exception {
         if (file.isEmpty()) {
@@ -133,9 +131,7 @@ public class FileUploadService {
             throw new IllegalArgumentException("File size exceeds the maximum limit of 10MB");
         }
         
-        // TODO: For videos, you would need an additional service to check the duration
-        // This would typically involve using a library like FFmpeg or sending to a 
-        // separate service that can determine video length
+        // Video duration validation is now handled on the frontend
     }
     
     /**

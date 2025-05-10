@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
+import { Form, Button, Card, Alert, Spinner, Image } from 'react-bootstrap';
 import { registerUser } from '../../Service/UserService';
 import '../../css/Post.css'; // ✅ Import external CSS
 
@@ -10,9 +10,12 @@ const Register = () => {
     email: '',
     password: ''
   });
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -21,13 +24,34 @@ const Register = () => {
     });
   };
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await registerUser(formData);
+      const formDataToSend = new FormData();
+      formDataToSend.append('fullName', formData.fullName);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('password', formData.password);
+      if (avatar) {
+        formDataToSend.append('avatar', avatar);
+      }
+
+      await registerUser(formDataToSend);
       navigate('/login');
     } catch (err) {
       setError(err.message);
@@ -73,6 +97,41 @@ const Register = () => {
                 required
               />
             </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Profile Photo</Form.Label>
+              <div className="avatar-upload">
+                {avatarPreview ? (
+                  <Image
+                    src={avatarPreview}
+                    roundedCircle
+                    width={100}
+                    height={100}
+                    className="mb-2"
+                  />
+                ) : (
+                  <div className="avatar-placeholder mb-2">
+                    <i className="bi bi-person-circle" style={{ fontSize: '100px' }}></i>
+                  </div>
+                )}
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  ref={fileInputRef}
+                  className="d-none"
+                  id="avatar-upload"
+                />
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  {avatarPreview ? 'Change Photo' : 'Upload Photo'}
+                </Button>
+              </div>
+            </Form.Group>
+
             <Button
               disabled={loading}
               className="w-100 mt-3"

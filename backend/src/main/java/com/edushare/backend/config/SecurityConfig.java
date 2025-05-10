@@ -30,12 +30,13 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/oauth2/**",
                                 "/api/posts/**",
-                                "/api/learningPlan/**",
+                                "/learningPlan/**",
                                 "/api/events/**",
                                 "/api/likes/**",
                                 "/api/notifications/**",
                                 "/api/comments/**",
-                                "/api/attendees/**"
+                                "/api/attendees/**",
+                                "/api/follows/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

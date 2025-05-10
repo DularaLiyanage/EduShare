@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Image } from 'react-bootstrap';
 import { updatePost } from '../../Service/PostService';
 
 const EditPostModal = ({ show, onHide, post, refreshPosts }) => {
-  const [description, setDescription] = useState(post?.description || '');
+  const [description, setDescription] = useState('');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Update description when post changes
+  useEffect(() => {
+    if (post) {
+      setDescription(post.description || '');
+    }
+  }, [post]);
 
   const handleFileChange = (e) => {
     setFiles([...e.target.files]);

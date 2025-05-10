@@ -51,18 +51,20 @@ const PostList = () => {
     try {
       setLoading(true);
       const data = await getAllPosts();
-      setPosts(data);
+      // Sort posts by creation time in descending order (newest first)
+      const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setPosts(sortedPosts);
 
       const counts = {};
       const likes = {};
-      for (const post of data) {
+      for (const post of sortedPosts) {
         counts[post.id] = await getLikeCount(post.id);
         likes[post.id] = false;
       }
       setLikeCounts(counts);
 
       const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
-      for (const post of data) {
+      for (const post of sortedPosts) {
         likes[post.id] = likedIds.includes(post.id);
       }
       setUserLikes(likes);
@@ -182,19 +184,19 @@ const PostList = () => {
                 className="flex-grow-1 text-start post-input-placeholder"
                 onClick={() => setShowCreateModal(true)}
               >
-                What's on your mind?
+                Share your knowledge or ask a question...
               </Button>
             </div>
             <hr className="my-2" />
             <div className="d-flex justify-content-between">
               <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
-                <i className="bi bi-image-fill me-1"></i> Photo/Video
+                <i className="bi bi-code-square me-1"></i> Share Skill
               </Button>
-              <Button variant="link" className="text-muted">
-                <i className="bi bi-people-fill me-1"></i> Tag Friends
+              <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
+                <i className="bi bi-file-earmark-text me-1"></i> Share Tutorial
               </Button>
-              <Button variant="link" className="text-muted">
-                <i className="bi bi-emoji-smile-fill me-1"></i> Feeling
+              <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
+                <i className="bi bi-question-circle me-1"></i> Ask Question
               </Button>
             </div>
           </Card.Body>

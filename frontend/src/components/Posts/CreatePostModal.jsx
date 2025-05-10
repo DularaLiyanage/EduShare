@@ -167,18 +167,19 @@ const CreatePostModal = ({ show, onHide, refreshPosts }) => {
         
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
+            <Form.Label>Content</Form.Label>
             <Form.Control
               as="textarea"
-              rows={3}
+              rows={5}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Share your knowledge, ask a question, or share a skill..."
               required
             />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Upload Files (Images/Videos)</Form.Label>
+            <Form.Label>Attach Files (Optional)</Form.Label>
             <Form.Control
               ref={fileInputRef}
               type="file"
@@ -221,7 +222,7 @@ const CreatePostModal = ({ show, onHide, refreshPosts }) => {
             <Button 
               variant="primary" 
               type="submit" 
-              disabled={loading || fileErrors.length > 0 || files.length === 0}
+              disabled={loading || fileErrors.length > 0}
             >
               {loading ? (
                 <>
@@ -229,7 +230,7 @@ const CreatePostModal = ({ show, onHide, refreshPosts }) => {
                   <span className="ms-2">Posting...</span>
                 </>
               ) : (
-                'Post'
+                'Share'
               )}
             </Button>
           </div>

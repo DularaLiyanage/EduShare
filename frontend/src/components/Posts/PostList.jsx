@@ -57,11 +57,18 @@ const PostList = () => {
 
       const counts = {};
       const likes = {};
+      const initialComments = {};
+      
       for (const post of sortedPosts) {
         counts[post.id] = await getLikeCount(post.id);
         likes[post.id] = false;
+        // Fetch comments for each post
+        const postComments = await getCommentsByPostId(post.id);
+        initialComments[post.id] = postComments;
       }
+      
       setLikeCounts(counts);
+      setComments(initialComments);
 
       const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
       for (const post of sortedPosts) {

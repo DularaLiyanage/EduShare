@@ -10,7 +10,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-page">
       <Container className="mt-4">
-        <h1>Dashboard</h1>
+        <center><h1 style={{ color: "#4361ee" }}>Dashboard</h1></center>
         <PostList currentUser={currentUser} />
       </Container>
       <Footer />

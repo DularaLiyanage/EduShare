@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form, Dropdown, Alert } from 'react-bootstrap';
 import { FaHeart, FaRegHeart, FaComment, FaEllipsisH, FaTimes, FaUser, FaThumbsUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { getAllPosts, deletePost } from '../../Service/PostService';
 import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser, getUsersWhoLikedPost } from '../../Service/LikeService';
 import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
@@ -204,19 +205,23 @@ const PostList = () => {
         <Card key={post.id} className="mb-4 post-card">
           <Card.Header className="d-flex justify-content-between align-items-center bg-white">
             <div className="d-flex align-items-center">
-              <Image 
-                src={post.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
-                roundedCircle 
-                width={40} 
-                height={40} 
-                className="me-3"
-              />
-              <div>
-                <h6 className="mb-0">
-                  {post.userFullName || 'Anonymous User'}
-                </h6>
-                <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
-              </div>
+              <Link to={`/profile/${post.userId}`} className="text-decoration-none">
+                <div className="d-flex align-items-center">
+                  <Image 
+                    src={post.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                    roundedCircle 
+                    width={40} 
+                    height={40} 
+                    className="me-2"
+                  />
+                  <div>
+                    <h6 className="mb-0 text-dark">
+                      {post.userFullName || 'Anonymous User'}
+                    </h6>
+                    <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
+                  </div>
+                </div>
+              </Link>
             </div>
             {currentUser?.id === post.userId && (
             <Dropdown>
@@ -343,7 +348,9 @@ const PostList = () => {
                         <div className="bg-light p-2 rounded">
                           <div className="d-flex justify-content-between">
                             <div>
-                              <strong>{comment.userFullName || comment.userId}</strong>
+                              <Link to={`/profile/${comment.userId}`} className="text-decoration-none">
+                                <strong>{comment.userFullName || comment.userId}</strong>
+                              </Link>
                               <small className="text-muted ms-2">{formatTimestamp(comment.createdAt)}</small>
                             </div>
                             {isOwner && (

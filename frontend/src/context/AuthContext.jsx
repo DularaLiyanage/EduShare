@@ -32,8 +32,8 @@ export const AuthProvider = ({ children }) => {
       };
       localStorage.setItem('user', JSON.stringify(user));
       setCurrentUser(user);
-      // Remove token from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // Remove token from URL and redirect to home
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 

@@ -82,3 +82,41 @@
     height: 120px;
   }
 }
+
+.clickable:hover {
+  text-decoration: underline;
+}
+
+.profile-stats span {
+  cursor: pointer;
+}
+
+/* Add these styles to your existing profile.css */
+
+.activities-section .card {
+  transition: transform 0.2s;
+}
+
+.activities-section .card:hover {
+  transform: translateX(5px);
+}
+
+.activity-icon {
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+}
+
+.activity-content {
+  flex-grow: 1;
+}
+
+.activity-timestamp {
+  font-size: 0.8rem;
+  color: #6c757d;
+}

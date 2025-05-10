@@ -56,6 +56,14 @@ function AppContent() {
           }
         />
         <Route
+          path="/profile/:userId"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/posts/:id"
           element={
             <PrivateRoute>

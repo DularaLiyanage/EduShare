@@ -41,3 +41,13 @@ export const deleteComment = async (id) => {
     throw error;
   }
 };
+
+export const getCommentsByUserId = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/user/${userId}`);
+    return response.data._embedded?.commentList || [];
+  } catch (error) {
+    console.error('Error fetching user comments:', error);
+    throw error;
+  }
+};

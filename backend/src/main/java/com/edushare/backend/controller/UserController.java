@@ -3,6 +3,7 @@ package com.edushare.backend.controller;
 import com.edushare.backend.model.UserModel;
 import com.edushare.backend.repository.UserRepository;
 import com.edushare.backend.service.FileUploadService;
+import com.edushare.backend.service.FollowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ public class UserController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private FollowService followService;
 
     @PostMapping(value = "/register", consumes = "multipart/form-data")
     public ResponseEntity<?> registerUser(
@@ -85,6 +89,12 @@ public class UserController {
                 response.put("fullName", user.getFullName());
                 response.put("email", user.getEmail());
                 response.put("avatarUrl", user.getAvatarUrl());
+                
+                // Get follow counts
+                Map<String, Long> followCounts = followService.getFollowCounts(userId);
+                response.put("followersCount", followCounts.get("followers"));
+                response.put("followingCount", followCounts.get("following"));
+                
                 return ResponseEntity.ok(response);
             })
             .orElse(ResponseEntity.notFound().build());

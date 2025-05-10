@@ -137,7 +137,6 @@ function App() {
             <AppContent /> {/* Use AppContent here to render the routes */}
           </div>
 
-          {/* You can add Footer here if needed */}
         </div>
       </AuthProvider>
     </Router>

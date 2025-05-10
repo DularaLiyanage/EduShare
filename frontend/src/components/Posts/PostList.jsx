@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col, Spinner, Modal, Image, Form, Dropdown, Alert } from 'react-bootstrap';
 import { FaHeart, FaRegHeart, FaComment, FaEllipsisH, FaTimes, FaUser, FaThumbsUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { getAllPosts, deletePost } from '../../Service/PostService';
 import { likePost, unlikePost, getLikeCount, getLikedPostIdsByUser, getUsersWhoLikedPost } from '../../Service/LikeService';
 import { getCommentsByPostId, createComment, deleteComment, updateComment } from '../../Service/CommentService';
@@ -9,7 +10,7 @@ import EditPostModal from './EditPostModal';
 import { useAuth } from '../../context/AuthContext';
 import '../../App.css';
 import '../../index.css';
-import '../../css/Post.css'; // We'll create this CSS file
+import '../../css/Post.css';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -27,6 +28,7 @@ const PostList = () => {
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likedUsers, setLikedUsers] = useState([]);
   const [expandedComments, setExpandedComments] = useState({});
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     fetchPosts();
@@ -49,18 +51,20 @@ const PostList = () => {
     try {
       setLoading(true);
       const data = await getAllPosts();
-      setPosts(data);
+      // Sort posts by creation time in descending order (newest first)
+      const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setPosts(sortedPosts);
 
       const counts = {};
       const likes = {};
-      for (const post of data) {
+      for (const post of sortedPosts) {
         counts[post.id] = await getLikeCount(post.id);
         likes[post.id] = false;
       }
       setLikeCounts(counts);
 
       const likedIds = currentUser ? await getLikedPostIdsByUser(currentUser.id) : [];
-      for (const post of data) {
+      for (const post of sortedPosts) {
         likes[post.id] = likedIds.includes(post.id);
       }
       setUserLikes(likes);
@@ -180,19 +184,19 @@ const PostList = () => {
                 className="flex-grow-1 text-start post-input-placeholder"
                 onClick={() => setShowCreateModal(true)}
               >
-                What's on your mind?
+                Share your knowledge or ask a question...
               </Button>
             </div>
             <hr className="my-2" />
             <div className="d-flex justify-content-between">
               <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
-                <i className="bi bi-image-fill me-1"></i> Photo/Video
+                <i className="bi bi-code-square me-1"></i> Share Skill
               </Button>
-              <Button variant="link" className="text-muted">
-                <i className="bi bi-people-fill me-1"></i> Tag Friends
+              <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
+                <i className="bi bi-file-earmark-text me-1"></i> Share Tutorial
               </Button>
-              <Button variant="link" className="text-muted">
-                <i className="bi bi-emoji-smile-fill me-1"></i> Feeling
+              <Button variant="link" className="text-muted" onClick={() => setShowCreateModal(true)}>
+                <i className="bi bi-question-circle me-1"></i> Ask Question
               </Button>
             </div>
           </Card.Body>
@@ -203,17 +207,23 @@ const PostList = () => {
         <Card key={post.id} className="mb-4 post-card">
           <Card.Header className="d-flex justify-content-between align-items-center bg-white">
             <div className="d-flex align-items-center">
-              <Image 
-                src={post.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
-                roundedCircle 
-                width={40} 
-                height={40} 
-                className="me-3"
-              />
-              <div>
-                <h6 className="mb-0">{post.userFullName || `User ${post.userId}`}</h6>
-                <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
-              </div>
+              <Link to={`/profile/${post.userId}`} className="text-decoration-none">
+                <div className="d-flex align-items-center">
+                  <Image 
+                    src={post.userAvatar || 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'} 
+                    roundedCircle 
+                    width={40} 
+                    height={40} 
+                    className="me-2"
+                  />
+                  <div>
+                    <h6 className="mb-0 text-dark">
+                      {post.userFullName || 'Anonymous User'}
+                    </h6>
+                    <small className="text-muted">{formatTimestamp(post.createdAt)}</small>
+                  </div>
+                </div>
+              </Link>
             </div>
             {currentUser?.id === post.userId && (
             <Dropdown>
@@ -247,28 +257,42 @@ const PostList = () => {
                 {post.mediaUrls.length === 1 ? (
                   <div className="single-media">
                     {post.mediaUrls[0].endsWith('.mp4') ? (
-                      <video controls className="w-100">
+                      <video controls>
                         <source src={post.mediaUrls[0]} type="video/mp4" />
                       </video>
                     ) : (
-                      <Image src={post.mediaUrls[0]} className="w-100" />
+                      <Image src={post.mediaUrls[0]} />
                     )}
                   </div>
                 ) : (
-                  <Row className="g-0">
-                    {post.mediaUrls.slice(0, 3).map((url, index) => (
-                      <Col key={index} xs={post.mediaUrls.length > 2 ? 6 : 12}>
-                        <div className="media-wrapper">
-                          <Image src={url} className="w-100 h-100" style={{ objectFit: 'cover' }} />
-                          {index === 2 && post.mediaUrls.length > 3 && (
-                            <div className="media-count-overlay">
-                              +{post.mediaUrls.length - 3}
-                            </div>
+                  <div className="media-carousel">
+                    <div className="media-carousel-item">
+                      <Image src={post.mediaUrls[currentImageIndex]} />
+                    </div>
+                    {post.mediaUrls.length > 1 && (
+                      <>
+                        <button 
+                          className="carousel-arrow prev"
+                          onClick={() => setCurrentImageIndex(prev => 
+                            prev === 0 ? post.mediaUrls.length - 1 : prev - 1
                           )}
+                        >
+                          ‹
+                        </button>
+                        <button 
+                          className="carousel-arrow next"
+                          onClick={() => setCurrentImageIndex(prev => 
+                            prev === post.mediaUrls.length - 1 ? 0 : prev + 1
+                          )}
+                        >
+                          ›
+                        </button>
+                        <div className="image-counter">
+                          {currentImageIndex + 1}/{post.mediaUrls.length}
                         </div>
-                      </Col>
-                    ))}
-                  </Row>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -326,7 +350,9 @@ const PostList = () => {
                         <div className="bg-light p-2 rounded">
                           <div className="d-flex justify-content-between">
                             <div>
-                              <strong>{comment.userFullName || comment.userId}</strong>
+                              <Link to={`/profile/${comment.userId}`} className="text-decoration-none">
+                                <strong>{comment.userFullName || comment.userId}</strong>
+                              </Link>
                               <small className="text-muted ms-2">{formatTimestamp(comment.createdAt)}</small>
                             </div>
                             {isOwner && (

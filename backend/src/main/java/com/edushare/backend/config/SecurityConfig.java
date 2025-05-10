@@ -35,7 +35,8 @@ public class SecurityConfig {
                                 "/api/likes/**",
                                 "/api/notifications/**",
                                 "/api/comments/**",
-                                "/api/attendees/**"
+                                "/api/attendees/**",
+                                "/api/follows/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

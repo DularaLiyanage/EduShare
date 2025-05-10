@@ -38,7 +38,6 @@ public class AWSConfig {
                 .build();
     }
 
-    // ✅ Add this CORS config to allow frontend access to backend
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

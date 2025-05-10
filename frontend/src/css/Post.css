@@ -14,74 +14,191 @@
   max-width: 400px;
 }
 
-/* PostList.css */
-
+/* Center the entire post area and limit width */
 .post-container {
-  max-width: 600px;
+  max-width: 700px;  /* Adjust width as needed (e.g., 600-800px) */
   margin: 0 auto;
 }
 
 .post-card {
-  border-radius: 8px;
+  max-width: 700px; /* reduce from 700 if needed */
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: none;
 }
 
+/* Post media styling */
+.post-media-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-top: 1px solid #f0f0f0;
+  background-color: #f0f2f5;
+  position: relative;
+}
+
+.post-media-container img,
+.post-media-container video {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+/* Create post card style */
 .create-post-card {
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+/* Optional: Placeholder button for creating post */
 .post-input-placeholder {
   border-radius: 20px;
-  background-color: #f0f2f5;
-  border: none;
-  padding: 8px 16px;
-  color: #65676b;
-  text-align: left;
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  width: 100%;
 }
 
 .post-input-placeholder:hover {
   background-color: #e4e6e9;
 }
 
-.post-media-container {
-  background-color: #f0f2f5;
-}
-
+/* Single media styling */
 .single-media {
-  max-height: 500px;
-  overflow: hidden;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000;
 }
 
 .single-media img,
 .single-media video {
-  max-height: 100%;
-  max-width: 100%;
+  width: 100%;
+  max-height: 600px;
   object-fit: contain;
 }
 
+/* Carousel styling */
+.media-carousel {
+  position: relative;
+  width: 100%;
+}
+
+.media-carousel-item {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-carousel-item img,
+.media-carousel-item video {
+  width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+}
+
+/* Navigation arrows */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.2s;
+}
+
+.carousel-arrow:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.carousel-arrow.prev {
+  left: 10px;
+}
+
+.carousel-arrow.next {
+  right: 10px;
+}
+
+/* Image counter */
+.image-counter {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  z-index: 2;
+}
+
+/* For multiple media files (up to 3), display in grid */
+.multiple-media {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 6px;
+  padding: 10px;
+}
+
+.multiple-media img,
+.multiple-media video {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Multiple media grid styling */
 .media-wrapper {
   position: relative;
-  height: 0;
-  padding-bottom: 100%;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
 .media-wrapper img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* Grid layout for multiple images */
+.post-media-container .row {
+  height: 100%;
+  margin: 0;
+}
+
+.post-media-container .col {
+  padding: 0;
+  height: 100%;
+}
+
+/* For 2 images */
+.post-media-container .col-6 {
+  height: 100%;
+}
+
+/* For 3 images */
+.post-media-container .col-4 {
+  height: 100%;
+}
+
+/* Media count overlay */
 .media-count-overlay {
   position: absolute;
   top: 0;

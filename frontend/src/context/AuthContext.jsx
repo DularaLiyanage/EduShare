@@ -26,14 +26,14 @@ export const AuthProvider = ({ children }) => {
       // Handle OAuth2 login success
       const userData = JSON.parse(atob(token.split('.')[1])); // Decode JWT token
       const user = {
-        id: userData.sub,
+        id: userData.userId || userData.sub, // Use userId if available, fallback to sub
         email: userData.email,
         fullName: userData.name
       };
       localStorage.setItem('user', JSON.stringify(user));
       setCurrentUser(user);
-      // Remove token from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // Remove token from URL and redirect to home
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 
